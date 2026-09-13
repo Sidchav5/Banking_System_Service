@@ -139,9 +139,10 @@ app.use(errorHandler);
 // ─── Startup ─────────────────────────────────────────────────────────────────
 async function start() {
   try {
-    // Connect to Redis
-    await redisClient.connect();
-    logger.info('Redis connection established');
+    // Attempt Redis connection gracefully
+    await redisClient.connect().catch((err) => {
+      logger.warn('Redis unavailable — running API Gateway in standalone mode', { error: err.message });
+    });
 
     app.listen(config.port, () => {
       logger.info(
