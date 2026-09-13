@@ -44,14 +44,24 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             </li>
 
             {isAuthenticated && (
-              <li className="nav-item">
-                <button
-                  className={`nav-link bankflow-nav-link btn btn-link ${activeTab === 'profile' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('profile')}
-                >
-                  <i className="bi bi-person-circle me-1"></i> My Profile
-                </button>
-              </li>
+              <>
+                <li className="nav-item">
+                  <button
+                    className={`nav-link bankflow-nav-link btn btn-link ${activeTab === 'accounts' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('accounts')}
+                  >
+                    <i className="bi bi-wallet2 me-1"></i> Accounts
+                  </button>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className={`nav-link bankflow-nav-link btn btn-link ${activeTab === 'profile' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('profile')}
+                  >
+                    <i className="bi bi-person-circle me-1"></i> My Profile
+                  </button>
+                </li>
+              </>
             )}
           </ul>
 

@@ -125,6 +125,47 @@ export type AccountType = 'SAVINGS' | 'CURRENT' | 'FIXED_DEPOSIT';
 
 export type AccountStatus = 'PENDING' | 'ACTIVE' | 'FROZEN' | 'BLOCKED' | 'CLOSED';
 
+export interface Account {
+  id: string;
+  accountNumber: string;
+  userId: string;
+  accountType: AccountType;
+  currency: Currency;
+  balance: AmountMinor;           // total balance in paise
+  availableBalance: AmountMinor;  // balance minus active holds in paise
+  status: AccountStatus;
+  dailyTransferLimit: AmountMinor;
+  singleTransactionLimit: AmountMinor;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OpenAccountRequest {
+  accountType: AccountType;
+  initialDeposit?: AmountMinor; // in paise
+}
+
+export interface UpdateLimitsRequest {
+  dailyTransferLimit?: AmountMinor;
+  singleTransactionLimit?: AmountMinor;
+}
+
+export interface AccountStatusUpdateRequest {
+  status: AccountStatus;
+  reason?: string;
+}
+
+export interface AccountHold {
+  id: string;
+  accountId: string;
+  amount: AmountMinor;
+  reason: string;
+  referenceId?: string;
+  status: 'ACTIVE' | 'RELEASED' | 'EXPIRED';
+  createdAt: string;
+  expiresAt: string;
+}
+
 // ─── Transaction ─────────────────────────────────────────────────────────────
 
 export type TransactionType =

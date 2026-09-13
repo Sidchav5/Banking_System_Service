@@ -1,0 +1,45 @@
+/* AccountList.css — Dedicated styles for AccountList component */
+
+.account-card {
+  border: 1px solid #e0e1dd;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+  background: #ffffff;
+}
+
+.account-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: #00b4d8;
+}
+
+.account-card .card-header-bg {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+  color: #ffffff;
+  padding: 16px 20px;
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+}
+
+.account-number {
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 1px;
+  font-weight: 700;
+  color: #00b4d8;
+}
+
+.balance-amount {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0d1b2a;
+}
+
+.account-type-badge {
+  background-color: rgba(0, 180, 216, 0.15);
+  color: #00b4d8;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
