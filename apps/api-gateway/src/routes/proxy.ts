@@ -1,25 +1,12 @@
 import { Router } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { config } from '../config';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Service Proxy Routes
 //
 // The API Gateway proxies requests to the appropriate microservice.
-// The frontend ONLY ever talks to the gateway — never directly to services.
-//
-// Route mapping:
-//   /api/v1/auth/**           → auth-service:3001
-//   /api/v1/users/**          → user-service:3002
-//   /api/v1/accounts/**       → account-service:3003
-//   /api/v1/ledger/**         → ledger-service:3004
-//   /api/v1/transactions/**   → transaction-service:3005
-//   /api/v1/payments/**       → payment-service:3006
-//   /api/v1/beneficiaries/**  → beneficiary-service:3007
-//   /api/v1/banks/**          → bank-service:3008
-//   /api/v1/settlement/**     → settlement-service:3009
-//   /api/v1/reconciliation/** → reconciliation-service:3010
-//   /api/v1/notifications/**  → notification-service:3011
+// Uses fixRequestBody to re-stream req.body parsed by express.json()
 // ────────────────────────────────────────────────────────────────────────────
 
 export const proxyRouter = Router();
@@ -31,14 +18,18 @@ function createServiceProxy(target: string, pathRewrite?: Record<string, string>
     changeOrigin: true,
     pathRewrite,
     on: {
-      error: (_err, _req, res: any) => {
-        res.status(502).json({
-          success: false,
-          error: {
-            code: 'SERVICE_UNAVAILABLE',
-            message: 'Downstream service is temporarily unavailable',
-          },
-        });
+      proxyReq: fixRequestBody,
+      error: (err, _req, res: any) => {
+        if (!res.headersSent) {
+          res.status(502).json({
+            success: false,
+            error: {
+              code: 'SERVICE_UNAVAILABLE',
+              message: 'Downstream service is temporarily unavailable',
+              details: err.message,
+            },
+          });
+        }
       },
     },
   });
@@ -77,7 +68,7 @@ proxyRouter.use('/api/v1/reconciliation', createServiceProxy(config.services.rec
 // ─── Notification Service ──────────────────────────────────────────────────
 proxyRouter.use('/api/v1/notifications', createServiceProxy(config.services.notification));
 
-// ─── Admin routes (reconciliation + audit — accessible to ADMIN/AUDITOR) ──
+// ─── Admin routes ─────────────────────────────────────────────────────────
 proxyRouter.use(
   '/api/v1/admin/reconciliation',
   createServiceProxy(config.services.reconciliation),
