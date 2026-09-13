@@ -1,0 +1,54 @@
+/* LoginForm.css — Dedicated styles for LoginForm component */
+
+.login-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.login-header {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+  color: #ffffff;
+  padding: 24px;
+  text-align: center;
+}
+
+.login-header .icon-container {
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 180, 216, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  color: #00b4d8;
+  font-size: 1.8rem;
+}
+
+.login-body {
+  padding: 30px;
+}
+
+.form-floating label {
+  color: #6c757d;
+}
+
+.btn-bankflow {
+  background-color: #00b4d8;
+  border-color: #00b4d8;
+  color: #0d1b2a;
+  font-weight: 700;
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-bankflow:hover {
+  background-color: #90e0ef;
+  border-color: #90e0ef;
+  color: #0d1b2a;
+  transform: translateY(-1px);
+}

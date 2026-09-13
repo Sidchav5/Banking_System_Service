@@ -1,0 +1,41 @@
+/* SystemStatus.css — Dedicated styles for SystemStatus component */
+
+.status-header {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+  color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.service-card {
+  border: 1px solid #e0e1dd;
+  border-radius: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+.service-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.ok {
+  background-color: #28a745;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
+}
+
+.status-dot.degraded {
+  background-color: #ffc107;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+}
+
+.status-dot.down {
+  background-color: #dc3545;
+}

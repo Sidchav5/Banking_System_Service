@@ -1,0 +1,137 @@
+
+# ============================================================
+# BankFlow — Local Infrastructure
+# PostgreSQL is hosted on Neon (cloud) — not in this compose
+# This file starts: Redis · Kafka (KRaft) · RabbitMQ · Kafka UI
+# ============================================================
+
+networks:
+  bankflow-network:
+    driver: bridge
+    name: bankflow-network
+
+volumes:
+  redis-data:
+  kafka-data:
+  rabbitmq-data:
+
+services:
+
+  # ─────────────────────────────────────────
+  # Redis 7 — Cache · Distributed Locks · Rate Limiting · Sessions
+  # ─────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: bankflow-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfilename appendonly.aof
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --requirepass ${REDIS_PASSWORD:-bankflow_redis_secret}
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD:-bankflow_redis_secret}', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bankflow-network
+
+  # ─────────────────────────────────────────
+  # Kafka 3.7 (KRaft mode — no ZooKeeper)
+  # ─────────────────────────────────────────
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: bankflow-kafka
+    restart: unless-stopped
+    ports:
+      - '9092:9092'   # External (host → Kafka)
+      - '9094:9094'   # Internal Docker network
+    volumes:
+      - kafka-data:/bitnami/kafka
+    environment:
+      # KRaft settings
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+
+      # Listeners
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,INTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,INTERNAL://kafka:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+
+      # Topic defaults
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_DELETE_TOPIC_ENABLE=true
+      - KAFKA_CFG_NUM_PARTITIONS=3
+      - KAFKA_CFG_DEFAULT_REPLICATION_FACTOR=1
+      - KAFKA_CFG_LOG_RETENTION_HOURS=168
+
+      # Performance (dev settings)
+      - KAFKA_CFG_LOG_SEGMENT_BYTES=1073741824
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    healthcheck:
+      test: ['CMD-SHELL', 'kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1']
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - bankflow-network
+
+  # ─────────────────────────────────────────
+  # Kafka UI — Visual Kafka management
+  # http://localhost:8080
+  # ─────────────────────────────────────────
+  kafka-ui:
+    image: provectus/kafka-ui:v0.7.2
+    container_name: bankflow-kafka-ui
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=bankflow-local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9094
+      - DYNAMIC_CONFIG_ENABLED=true
+    networks:
+      - bankflow-network
+
+  # ─────────────────────────────────────────
+  # RabbitMQ 3.13 — Background Jobs · Notifications
+  # AMQP:       localhost:5672
+  # Management: http://localhost:15672  (guest / guest)
+  # ─────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: bankflow-rabbitmq
+    restart: unless-stopped
+    ports:
+      - '5672:5672'    # AMQP
+      - '15672:15672'  # Management UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./infrastructure/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./infrastructure/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-bankflow}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS:-bankflow_rabbit_secret}
+      - RABBITMQ_DEFAULT_VHOST=bankflow
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - bankflow-network

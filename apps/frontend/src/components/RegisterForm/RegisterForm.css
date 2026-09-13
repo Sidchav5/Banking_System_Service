@@ -1,0 +1,26 @@
+/* RegisterForm.css — Dedicated styles for RegisterForm component */
+
+.register-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.register-header {
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+  color: #ffffff;
+  padding: 24px;
+  text-align: center;
+}
+
+.register-body {
+  padding: 30px;
+}
+
+.role-selector .btn-outline-info.active {
+  background-color: #00b4d8;
+  color: #0d1b2a;
+  font-weight: 700;
+}

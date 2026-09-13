@@ -1,0 +1,162 @@
+{
+  "rabbit_version": "3.13.0",
+  "rabbitmq_version": "3.13.0",
+  "vhosts": [{ "name": "bankflow" }],
+  "users": [
+    {
+      "name": "bankflow",
+      "password_hash": "",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": ["administrator"],
+      "limits": {}
+    }
+  ],
+  "permissions": [
+    {
+      "user": "bankflow",
+      "vhost": "bankflow",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "bankflow.notifications",
+      "vhost": "bankflow",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false
+    },
+    {
+      "name": "bankflow.notifications.dlx",
+      "vhost": "bankflow",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false
+    },
+    {
+      "name": "bankflow.jobs",
+      "vhost": "bankflow",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false
+    }
+  ],
+  "queues": [
+    {
+      "name": "notification.email",
+      "vhost": "bankflow",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "bankflow.notifications.dlx",
+        "x-dead-letter-routing-key": "notification.email.dlq",
+        "x-message-ttl": 86400000,
+        "x-max-retries": 3
+      }
+    },
+    {
+      "name": "notification.email.dlq",
+      "vhost": "bankflow",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "notification.sms",
+      "vhost": "bankflow",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "bankflow.notifications.dlx",
+        "x-dead-letter-routing-key": "notification.sms.dlq"
+      }
+    },
+    {
+      "name": "notification.sms.dlq",
+      "vhost": "bankflow",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "notification.push",
+      "vhost": "bankflow",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "bankflow.notifications.dlx",
+        "x-dead-letter-routing-key": "notification.push.dlq"
+      }
+    },
+    {
+      "name": "notification.push.dlq",
+      "vhost": "bankflow",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "statement.generation",
+      "vhost": "bankflow",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "bankflow.jobs.dlx",
+        "x-dead-letter-routing-key": "statement.generation.dlq"
+      }
+    }
+  ],
+  "bindings": [
+    {
+      "source": "bankflow.notifications",
+      "vhost": "bankflow",
+      "destination": "notification.email",
+      "destination_type": "queue",
+      "routing_key": "notification.email"
+    },
+    {
+      "source": "bankflow.notifications.dlx",
+      "vhost": "bankflow",
+      "destination": "notification.email.dlq",
+      "destination_type": "queue",
+      "routing_key": "notification.email.dlq"
+    },
+    {
+      "source": "bankflow.notifications",
+      "vhost": "bankflow",
+      "destination": "notification.sms",
+      "destination_type": "queue",
+      "routing_key": "notification.sms"
+    },
+    {
+      "source": "bankflow.notifications.dlx",
+      "vhost": "bankflow",
+      "destination": "notification.sms.dlq",
+      "destination_type": "queue",
+      "routing_key": "notification.sms.dlq"
+    },
+    {
+      "source": "bankflow.notifications",
+      "vhost": "bankflow",
+      "destination": "notification.push",
+      "destination_type": "queue",
+      "routing_key": "notification.push"
+    },
+    {
+      "source": "bankflow.notifications.dlx",
+      "vhost": "bankflow",
+      "destination": "notification.push.dlq",
+      "destination_type": "queue",
+      "routing_key": "notification.push.dlq"
+    },
+    {
+      "source": "bankflow.jobs",
+      "vhost": "bankflow",
+      "destination": "statement.generation",
+      "destination_type": "queue",
+      "routing_key": "statement.generation"
+    }
+  ]
+}
