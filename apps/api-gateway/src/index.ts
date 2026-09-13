@@ -41,12 +41,15 @@ export const redisClient = new Redis({
   port: config.redis.port,
   password: config.redis.password,
   lazyConnect: true,
-  maxRetriesPerRequest: 3,
-  retryStrategy: (times) => Math.min(times * 200, 2000),
+  maxRetriesPerRequest: 0,
+  retryStrategy: () => null,
+  enableOfflineQueue: false,
 });
 
 redisClient.on('connect', () => logger.info('Redis connected'));
-redisClient.on('error', (err) => logger.error('Redis connection error', { err }));
+redisClient.on('error', () => {
+  // Mute background reconnection log spam when Redis is offline in local dev
+});
 
 // ─── Express App ────────────────────────────────────────────────────────────
 const app = express();

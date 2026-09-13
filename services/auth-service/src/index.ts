@@ -115,8 +115,17 @@ app.post('/register', async (req, res, next) => {
         `INSERT INTO users_auth (id, email, password_hash, role, status) VALUES ($1, $2, $3, $4, $5)`,
         [userId, email.toLowerCase(), passwordHash, userRole, userStatus]
       );
-    } catch {
-      // In-Memory Fallback
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === '23505') {
+        res.status(409).json({
+          success: false,
+          error: { code: 'EMAIL_EXISTS', message: 'User with this email already exists' },
+          requestId: (req as unknown as { id?: string }).id ?? 'unknown',
+        });
+        return;
+      }
+
+      // In-Memory Fallback if DB connection failed
       if (Array.from(inMemoryUsers.values()).some((u) => u.email === email.toLowerCase())) {
         res.status(409).json({
           success: false,
@@ -152,8 +161,8 @@ app.post('/register', async (req, res, next) => {
           phone: phone ?? '',
         }),
       });
-    } catch (err) {
-      logger.warn('Could not auto-create user profile in user-service', { err });
+    } catch {
+      // Quiet background profile stub creation
     }
 
     const sessionId = uuidv4();
