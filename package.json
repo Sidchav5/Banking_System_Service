@@ -10,8 +10,12 @@
     "simulators/*"
   ],
   "scripts": {
-    "dev:gateway": "npm run dev --workspace=apps/api-gateway",
-    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "dev": "concurrently -n \"GATEWAY,AUTH,USER,ACCOUNT,FRONTEND\" -c \"blue,green,magenta,yellow,cyan\" \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:user\" \"npm run dev:account\" \"npm run dev:frontend\"",
+    "dev:gateway": "npm run dev --workspace=@bankflow/api-gateway",
+    "dev:auth": "npm run dev --workspace=@bankflow/auth-service",
+    "dev:user": "npm run dev --workspace=@bankflow/user-service",
+    "dev:account": "npm run dev --workspace=@bankflow/account-service",
+    "dev:frontend": "npm run dev --workspace=@bankflow/frontend",
     "infra:up": "docker-compose up -d",
     "infra:down": "docker-compose down",
     "infra:logs": "docker-compose logs -f",
@@ -22,6 +26,7 @@
     "typecheck": "tsc --noEmit --project tsconfig.base.json"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "@types/node": "^20.16.0",
