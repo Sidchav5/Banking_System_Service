@@ -428,6 +428,19 @@
   transform: translateY(-1px);
 }
 
+.btn-quick--transfer {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #0284c7;
+}
+
+.btn-quick--transfer:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: #38bdf8;
+  color: #0369a1;
+  transform: translateY(-1px);
+}
+
 /* --- Card footer --- */
 .account-card__footer {
   border-top: 1px solid var(--bf-border);

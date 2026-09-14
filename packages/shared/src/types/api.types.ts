@@ -183,6 +183,40 @@ export type TransactionStatus =
   | 'REVERSED'
   | 'REFUNDED';
 
+export interface Transaction {
+  id: string;
+  transactionNumber: string;
+  sourceAccountNumber: string;
+  destinationAccountNumber: string;
+  amount: AmountMinor;
+  currency: Currency;
+  transactionType: TransactionType;
+  status: TransactionStatus;
+  idempotencyKey?: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TransferRequest {
+  sourceAccountNumber: string;
+  destinationAccountNumber: string;
+  amount: AmountMinor; // in paise
+  description?: string;
+}
+
+export interface IdempotencyRecord {
+  id: string;
+  key: string;
+  requestPath: string;
+  requestHash: string;
+  responseCode: number;
+  responseBody: unknown;
+  status: 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  createdAt: string;
+  expiresAt: string;
+}
+
 // ─── Payment ─────────────────────────────────────────────────────────────────
 
 export type PaymentStatus =

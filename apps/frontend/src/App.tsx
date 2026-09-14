@@ -6,6 +6,7 @@ import { RegisterForm } from './components/RegisterForm/RegisterForm';
 import { UserProfileView } from './components/UserProfile/UserProfile';
 import { AccountList } from './components/AccountList/AccountList';
 import { LedgerJournalView } from './components/LedgerJournalView/LedgerJournalView';
+import { TransactionListView } from './components/TransactionListView/TransactionListView';
 import { SystemStatus } from './components/SystemStatus/SystemStatus';
 import './App.css';
 
@@ -60,6 +61,24 @@ const MainContent: React.FC = () => {
               <div className="alert alert-warning d-inline-block px-4 py-3 shadow-sm" role="alert">
                 <i className="bi bi-journal-text me-2"></i>
                 Please sign in to view double-entry ledger transactions.
+              </div>
+              <div className="mt-3">
+                <button className="btn btn-info font-weight-bold" onClick={() => setActiveTab('login')}>
+                  Sign In Now
+                </button>
+              </div>
+            </div>
+          )
+        )}
+
+        {activeTab === 'transactions' && (
+          isAuthenticated ? (
+            <TransactionListView />
+          ) : (
+            <div className="container py-5 text-center">
+              <div className="alert alert-warning d-inline-block px-4 py-3 shadow-sm" role="alert">
+                <i className="bi bi-arrow-left-right me-2"></i>
+                Please sign in to view transfers and payment transactions.
               </div>
               <div className="mt-3">
                 <button className="btn btn-info font-weight-bold" onClick={() => setActiveTab('login')}>

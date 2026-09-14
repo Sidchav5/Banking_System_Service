@@ -25,8 +25,8 @@ export const LedgerJournalView: React.FC = () => {
   const [ledgerItems, setLedgerItems] = useState<LedgerItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch accounts list to allow account switching
   useEffect(() => {
     const fetchAccounts = async () => {
       if (!accessToken) return;
@@ -45,14 +45,14 @@ export const LedgerJournalView: React.FC = () => {
     fetchAccounts();
   }, [accessToken]);
 
-  // Fetch ledger entries when selected account changes
-  const fetchLedger = async () => {
+  const fetchLedger = async (isRefresh = false) => {
     if (!accessToken || !selectedAccountNumber) {
       setLoading(false);
       return;
     }
 
-    setLoading(true);
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
     setError(null);
 
     try {
@@ -69,11 +69,13 @@ export const LedgerJournalView: React.FC = () => {
       setError('Could not load ledger entries. Ensure ledger-service is running.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
     fetchLedger();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, selectedAccountNumber]);
 
   const formatCurrency = (paise: number) =>
@@ -95,25 +97,39 @@ export const LedgerJournalView: React.FC = () => {
     });
   };
 
+  // Derived summary
+  const totalCredits = ledgerItems
+    .filter((i) => i.entryDirection === 'CREDIT')
+    .reduce((sum, i) => sum + i.amount, 0);
+
+  const totalDebits = ledgerItems
+    .filter((i) => i.entryDirection === 'DEBIT')
+    .reduce((sum, i) => sum + i.amount, 0);
+
+  const netFlow = totalCredits - totalDebits;
+
   return (
     <div className="ledger-view-page">
       <div className="ledger-container">
-        {/* Header */}
-        <header className="ledger-header">
-          <div className="ledger-header__text">
-            <span className="ledger-header__eyebrow">Immutable Audit Trail</span>
-            <h1 className="ledger-header__title">Double-Entry Journal Ledger</h1>
-            <p className="ledger-header__subtitle">
-              Real-time debit & credit ledger postings compliant with banking GAAP standards
-            </p>
+        {/* Hero header */}
+        <header className="ledger-hero">
+          <div className="ledger-hero__left">
+            <div className="ledger-hero__icon">
+              <i className="bi bi-journal-text"></i>
+            </div>
+            <div>
+              <span className="ledger-hero__eyebrow">Immutable Audit Trail</span>
+              <h1 className="ledger-hero__title">Double-Entry Journal Ledger</h1>
+              <p className="ledger-hero__subtitle">
+                Real-time debit & credit postings compliant with banking GAAP standards
+              </p>
+            </div>
           </div>
 
-          <div className="ledger-header__actions">
+          <div className="ledger-hero__actions">
             {accounts.length > 0 && (
               <div className="account-selector">
-                <label htmlFor="accountSelect" className="account-selector__label">
-                  Account:
-                </label>
+                <i className="bi bi-wallet2 account-selector__icon"></i>
                 <select
                   id="accountSelect"
                   className="account-selector__select"
@@ -126,29 +142,83 @@ export const LedgerJournalView: React.FC = () => {
                     </option>
                   ))}
                 </select>
+                <i className="bi bi-chevron-down account-selector__chevron"></i>
               </div>
             )}
 
             <button
               type="button"
-              className="btn btn--refresh"
-              onClick={fetchLedger}
+              className="btn btn--primary"
+              onClick={() => fetchLedger(true)}
+              disabled={refreshing}
               title="Refresh Ledger Logs"
             >
-              <i className="bi bi-arrow-clockwise"></i> Refresh
+              <i className={`bi bi-arrow-clockwise ${refreshing ? 'spin' : ''}`}></i>
+              {refreshing ? 'Refreshing…' : 'Refresh'}
             </button>
           </div>
         </header>
 
-        {/* Error Alert */}
+        {/* Error */}
         {error && (
-          <div className="ledger-alert ledger-alert--danger" role="alert">
+          <div className="ledger-alert" role="alert">
             <i className="bi bi-exclamation-triangle-fill"></i>
             <span>{error}</span>
           </div>
         )}
 
-        {/* Loading / Table / Empty */}
+        {/* Summary strip */}
+        {!loading && ledgerItems.length > 0 && (
+          <section className="ledger-summary">
+            <div className="ledger-stat">
+              <div className="ledger-stat__icon ledger-stat__icon--credit">
+                <i className="bi bi-arrow-down-left"></i>
+              </div>
+              <div>
+                <span className="ledger-stat__label">Total Credits</span>
+                <span className="ledger-stat__value ledger-stat__value--credit">
+                  {formatCurrency(totalCredits)}
+                </span>
+              </div>
+            </div>
+
+            <div className="ledger-stat">
+              <div className="ledger-stat__icon ledger-stat__icon--debit">
+                <i className="bi bi-arrow-up-right"></i>
+              </div>
+              <div>
+                <span className="ledger-stat__label">Total Debits</span>
+                <span className="ledger-stat__value ledger-stat__value--debit">
+                  {formatCurrency(totalDebits)}
+                </span>
+              </div>
+            </div>
+
+            <div className="ledger-stat">
+              <div className={`ledger-stat__icon ledger-stat__icon--${netFlow >= 0 ? 'credit' : 'debit'}`}>
+                <i className="bi bi-activity"></i>
+              </div>
+              <div>
+                <span className="ledger-stat__label">Net Flow</span>
+                <span className={`ledger-stat__value ledger-stat__value--${netFlow >= 0 ? 'credit' : 'debit'}`}>
+                  {netFlow >= 0 ? '+' : ''}{formatCurrency(netFlow)}
+                </span>
+              </div>
+            </div>
+
+            <div className="ledger-stat">
+              <div className="ledger-stat__icon ledger-stat__icon--neutral">
+                <i className="bi bi-list-ol"></i>
+              </div>
+              <div>
+                <span className="ledger-stat__label">Entries</span>
+                <span className="ledger-stat__value">{ledgerItems.length}</span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Loading / Empty / Table */}
         {loading ? (
           <div className="ledger-skeleton-table">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -160,10 +230,11 @@ export const LedgerJournalView: React.FC = () => {
             <div className="ledger-empty__icon">
               <i className="bi bi-journal-text"></i>
             </div>
-            <h3>No Ledger Journal Entries Found</h3>
+            <h3>No journal entries yet</h3>
             <p>
-              No double-entry journal postings found for account{' '}
-              <code>{selectedAccountNumber}</code>. Perform a deposit or withdrawal to test.
+              No double-entry postings for account{' '}
+              <code>{selectedAccountNumber}</code>. Perform a deposit or transfer
+              to see ledger activity here.
             </p>
           </div>
         ) : (
@@ -173,11 +244,11 @@ export const LedgerJournalView: React.FC = () => {
                 <thead>
                   <tr>
                     <th>Timestamp</th>
-                    <th>Reference ID</th>
+                    <th>Reference</th>
                     <th>Entry Type</th>
                     <th>Description</th>
                     <th>Direction</th>
-                    <th className="text-end">Amount</th>
+                    <th className="align-end">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -185,7 +256,7 @@ export const LedgerJournalView: React.FC = () => {
                     const isCredit = item.entryDirection === 'CREDIT';
                     return (
                       <tr key={item.ledgerEntryId}>
-                        <td className="text-nowrap">{formatDate(item.createdAt)}</td>
+                        <td className="cell-time">{formatDate(item.createdAt)}</td>
                         <td>
                           <code className="ref-code">{item.referenceId}</code>
                         </td>
@@ -194,23 +265,15 @@ export const LedgerJournalView: React.FC = () => {
                             {item.entryType}
                           </span>
                         </td>
-                        <td className="description-col">{item.description}</td>
+                        <td className="cell-description">{item.description}</td>
                         <td>
-                          <span
-                            className={`direction-badge direction-badge--${
-                              isCredit ? 'credit' : 'debit'
-                            }`}
-                          >
-                            <i
-                              className={`bi ${
-                                isCredit ? 'bi-arrow-down-left' : 'bi-arrow-up-right'
-                              }`}
-                            ></i>
+                          <span className={`direction-badge direction-badge--${isCredit ? 'credit' : 'debit'}`}>
+                            <i className={`bi ${isCredit ? 'bi-arrow-down-left' : 'bi-arrow-up-right'}`}></i>
                             {item.entryDirection}
                           </span>
                         </td>
-                        <td className={`text-end amount-col ${isCredit ? 'text-credit' : 'text-debit'}`}>
-                          {isCredit ? '+' : '-'}{formatCurrency(item.amount)}
+                        <td className={`align-end cell-amount ${isCredit ? 'is-credit' : 'is-debit'}`}>
+                          {isCredit ? '+' : '−'}{formatCurrency(item.amount)}
                         </td>
                       </tr>
                     );

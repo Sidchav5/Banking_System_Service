@@ -1,262 +1,525 @@
-/* Deposit Modal Styling */
-.modal-backdrop-custom {
+/* =========================================================
+   DepositModal — Banking UI
+   Shares design tokens with the rest of the app
+   ========================================================= */
+:root {
+  --bf-navy-900: #0a1524;
+  --bf-navy-800: #0d1b2a;
+  --bf-navy-700: #142338;
+  --bf-navy-600: #1b263b;
+
+  --bf-surface: #ffffff;
+  --bf-surface-soft: #f6f8fb;
+  --bf-bg: #f4f6fa;
+  --bf-border: #e5e9f0;
+  --bf-border-strong: #cfd6e2;
+
+  --bf-text: #0f172a;
+  --bf-text-muted: #64748b;
+  --bf-text-inverse: #f8fafc;
+
+  --bf-accent: #22d3ee;
+  --bf-accent-strong: #06b6d4;
+  --bf-primary: #3b82f6;
+  --bf-success: #10b981;
+  --bf-success-strong: #059669;
+  --bf-warn: #f59e0b;
+  --bf-danger: #ef4444;
+
+  --bf-radius-sm: 8px;
+  --bf-radius-md: 12px;
+  --bf-radius-lg: 16px;
+  --bf-radius-xl: 20px;
+  --bf-radius-pill: 999px;
+
+  --bf-shadow-sm: 0 1px 2px rgba(10, 21, 36, 0.05);
+  --bf-shadow-md: 0 8px 24px rgba(10, 21, 36, 0.12);
+  --bf-shadow-lg: 0 24px 60px rgba(10, 21, 36, 0.35);
+
+  --bf-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+  --bf-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+}
+
+/* =========================================================
+   Backdrop
+   ========================================================= */
+.deposit-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(10, 15, 26, 0.75);
-  backdrop-filter: blur(8px);
+  background: rgba(10, 21, 36, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 1060;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  animation: fadeIn 200ms ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.deposit-modal {
-  width: 100%;
-  max-width: 480px;
-  background: linear-gradient(180deg, #0d1b2a 0%, #091322 100%);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.2);
-  color: #ffffff;
-  overflow: hidden;
-  animation: slideUp 250ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.deposit-modal__header {
-  padding: 20px 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.02);
+  justify-content: center;
+  padding: 20px;
+  animation: bf-fade-in 180ms ease-out;
 }
 
-.deposit-modal__title-group {
+@keyframes bf-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* =========================================================
+   Card
+   ========================================================= */
+.deposit-modal-card {
+  width: 100%;
+  max-width: 500px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bf-surface);
+  border-radius: var(--bf-radius-xl);
+  overflow: hidden;
+  box-shadow: var(--bf-shadow-lg);
+  font-family: var(--bf-font);
+  color: var(--bf-text);
+  animation: bf-slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bf-slide-up {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* =========================================================
+   Header
+   ========================================================= */
+.deposit-modal-header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 22px 24px;
+  background: linear-gradient(135deg, var(--bf-navy-900) 0%, var(--bf-navy-600) 100%);
+  color: var(--bf-text-inverse);
+}
+
+.deposit-modal-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 85% -20%,
+    rgba(16, 185, 129, 0.22),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.deposit-modal-header__left {
   display: flex;
   align-items: center;
   gap: 14px;
+  position: relative;
+  z-index: 1;
 }
 
-.deposit-modal__icon {
-  font-size: 32px;
-  color: #10b981;
+.deposit-modal-header__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--bf-radius-md);
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.4);
   display: grid;
   place-items: center;
+  color: #34d399;
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
-.deposit-modal__title {
-  font-size: 19px;
-  font-weight: 700;
+.deposit-modal-header__title {
   margin: 0;
-  color: #ffffff;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 }
 
-.deposit-modal__subtitle {
-  font-size: 13px;
-  color: #94a3b8;
-  margin: 2px 0 0;
+.deposit-modal-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
 }
 
-.deposit-modal__subtitle code {
-  color: #38bdf8;
-  font-family: inherit;
+.deposit-modal-header__acct {
+  font-family: var(--bf-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.5px;
+  color: var(--bf-accent);
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  padding: 3px 8px;
+  border-radius: var(--bf-radius-pill);
 }
 
-.deposit-modal__close {
+.deposit-modal-header__type {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(248, 250, 252, 0.72);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 3px 8px;
+  border-radius: var(--bf-radius-pill);
+}
+
+.deposit-modal-close {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #94a3b8;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  color: var(--bf-text-inverse);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
   cursor: pointer;
   transition: all 150ms ease;
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  flex-shrink: 0;
 }
 
-.deposit-modal__close:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
-  color: #ffffff;
+.deposit-modal-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: rotate(90deg);
 }
 
-.deposit-modal__body {
+/* =========================================================
+   Body
+   ========================================================= */
+.deposit-modal-body {
   padding: 24px;
+  overflow-y: auto;
 }
 
-.deposit-modal__balance-card {
+.deposit-modal-body::-webkit-scrollbar { width: 8px; }
+.deposit-modal-body::-webkit-scrollbar-thumb {
+  background: var(--bf-border-strong);
+  border-radius: 999px;
+}
+
+/* =========================================================
+   Balance strip
+   ========================================================= */
+.balance-strip {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 12px;
+  align-items: stretch;
+  gap: 10px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0f9ff, #ecfeff);
+  border: 1px solid #bae6fd;
+  border-radius: var(--bf-radius-md);
   margin-bottom: 20px;
 }
 
-.balance-info {
+.balance-strip__item {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
-.balance-info__label {
-  font-size: 11.5px;
-  color: #94a3b8;
+.balance-strip__arrow {
+  display: grid;
+  place-items: center;
+  color: var(--bf-accent-strong);
+  font-size: 15px;
+  padding: 0 4px;
+}
+
+.balance-strip__label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #0e7490;
 }
 
-.balance-info__value {
-  font-size: 18px;
+.balance-strip__value {
+  font-size: 16px;
   font-weight: 700;
-  color: #10b981;
+  color: var(--bf-text);
+  letter-spacing: -0.3px;
 }
 
-.balance-info__badge {
-  font-size: 11px;
-  font-weight: 700;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.15);
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  margin-top: 4px;
-}
+.balance-strip__value--accent { color: #047857; }
 
+.balance-strip__item--projected .balance-strip__label { color: #047857; }
+
+/* =========================================================
+   Alerts
+   ========================================================= */
 .deposit-alert {
-  padding: 12px 16px;
-  border-radius: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13.5px;
-  font-weight: 600;
+  padding: 12px 14px;
+  border-radius: var(--bf-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
   margin-bottom: 18px;
 }
 
+.deposit-alert i { font-size: 15px; flex-shrink: 0; }
+
 .deposit-alert--danger {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
 }
 
 .deposit-alert--success {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #6ee7b7;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
 }
 
-.input-group-custom {
-  position: relative;
+/* =========================================================
+   Form
+   ========================================================= */
+.deposit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--bf-text);
+  margin-bottom: 7px;
+  letter-spacing: 0.1px;
+}
+
+.field__optional {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--bf-text-muted);
+  margin-left: 6px;
+  padding: 2px 7px;
+  background: var(--bf-surface-soft);
+  border: 1px solid var(--bf-border);
+  border-radius: var(--bf-radius-pill);
+}
+
+.field__hint-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.field__hint {
+  font-size: 11.5px;
+  color: var(--bf-text-muted);
+}
+
+.field__counter {
+  font-size: 11px;
+  font-family: var(--bf-font-mono);
+  color: var(--bf-text-muted);
+  letter-spacing: 0.3px;
+}
+
+/* Input affix */
+.input-affix {
   display: flex;
   align-items: center;
+  background: var(--bf-surface);
+  border: 1.5px solid var(--bf-border-strong);
+  border-radius: var(--bf-radius-sm);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  overflow: hidden;
 }
 
-.input-prefix {
-  position: absolute;
-  left: 14px;
-  font-size: 18px;
-  font-weight: 700;
-  color: #38bdf8;
-  pointer-events: none;
+.input-affix:focus-within {
+  border-color: var(--bf-success);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
-.form-input {
-  width: 100%;
-  padding: 12px 14px 12px 36px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 10px;
-  color: #ffffff;
-  font-size: 16px;
+.input-affix__prefix,
+.input-affix__icon,
+.input-affix__suffix {
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+  align-self: stretch;
+  background: var(--bf-surface-soft);
+  color: var(--bf-text-muted);
+  font-size: 14px;
   font-weight: 600;
-  transition: all 150ms ease;
 }
 
-.form-input:focus {
+.input-affix__prefix {
+  border-right: 1px solid var(--bf-border);
+  font-size: 15px;
+}
+
+.input-affix__icon {
+  border-right: 1px solid var(--bf-border);
+}
+
+.input-affix__suffix {
+  border-left: 1px solid var(--bf-border);
+  font-size: 10.5px;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.input-affix:focus-within .input-affix__prefix,
+.input-affix:focus-within .input-affix__icon {
+  color: var(--bf-success-strong);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.input-affix input {
+  flex: 1;
+  border: none;
   outline: none;
-  border-color: #38bdf8;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+  padding: 12px 14px;
+  font-size: 14.5px;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--bf-text);
+  background: transparent;
+  min-width: 0;
+  width: 100%;
 }
 
+.input-affix input::placeholder {
+  color: #9aa4b2;
+  font-weight: 500;
+}
+
+.input-affix input::-webkit-outer-spin-button,
+.input-affix input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.input-affix input[type='number'] { -moz-appearance: textfield; }
+
+/* Preset chips */
 .preset-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-top: 10px;
 }
 
 .preset-chip {
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: #38bdf8;
   padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
+  font-family: inherit;
+  color: var(--bf-text-muted);
+  background: var(--bf-surface-soft);
+  border: 1px solid var(--bf-border);
+  border-radius: var(--bf-radius-pill);
   cursor: pointer;
   transition: all 150ms ease;
 }
 
-.preset-chip:hover {
-  background: rgba(56, 189, 248, 0.25);
-  border-color: #38bdf8;
-  color: #ffffff;
+.preset-chip:hover:not(:disabled) {
+  color: var(--bf-success-strong);
+  border-color: var(--bf-success);
+  background: rgba(16, 185, 129, 0.06);
 }
 
-.deposit-modal__footer {
+.preset-chip.is-active {
+  color: var(--bf-success-strong);
+  border-color: var(--bf-success);
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.preset-chip:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* =========================================================
+   Footer / buttons
+   ========================================================= */
+.deposit-modal-footer {
   display: flex;
-  align-items: center;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
+  gap: 10px;
+  padding-top: 6px;
+  border-top: 1px solid var(--bf-border);
+  margin-top: 4px;
+  padding-top: 18px;
 }
 
-.btn-custom {
-  padding: 11px 20px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 150ms ease;
+.btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  border: 1px solid transparent;
+  padding: 11px 20px;
+  border-radius: var(--bf-radius-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 150ms ease;
+  white-space: nowrap;
 }
 
-.btn-custom--ghost {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #cbd5e1;
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--bf-text);
+  border-color: var(--bf-border-strong);
 }
 
-.btn-custom--ghost:hover {
-  background: rgba(255, 255, 255, 0.12);
+.btn--ghost:hover:not(:disabled) {
+  background: var(--bf-surface-soft);
+  border-color: var(--bf-text-muted);
+}
+
+.btn--deposit {
+  background: linear-gradient(135deg, var(--bf-success), var(--bf-success-strong));
   color: #ffffff;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.32);
 }
 
-.btn-custom--deposit {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
-}
-
-.btn-custom--deposit:hover {
-  background: linear-gradient(135deg, #34d399, #059669);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+.btn--deposit:hover:not(:disabled) {
   transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(16, 185, 129, 0.48);
+}
+
+/* Spinner */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: bf-spin 0.6s linear infinite;
+}
+
+@keyframes bf-spin { to { transform: rotate(360deg); } }
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 480px) {
+  .deposit-modal-body { padding: 18px; }
+  .deposit-modal-header { padding: 18px; }
+  .balance-strip { flex-direction: column; gap: 12px; }
+  .balance-strip__arrow { transform: rotate(90deg); }
+  .deposit-modal-footer { flex-direction: column-reverse; }
+  .deposit-modal-footer .btn { width: 100%; }
 }

@@ -6,6 +6,7 @@ import { OpenAccountModal } from '../OpenAccountModal/OpenAccountModal';
 import { AccountDetailsModal } from '../AccountDetailsModal/AccountDetailsModal';
 import { DepositModal } from '../DepositModal/DepositModal';
 import { WithdrawalModal } from '../WithdrawalModal/WithdrawalModal';
+import { InternalTransferModal } from '../InternalTransferModal/InternalTransferModal';
 import './AccountList.css';
 
 const API_BASE_URL = 'http://localhost:3000/api/v1';
@@ -19,6 +20,7 @@ export const AccountList: React.FC = () => {
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [depositAccount, setDepositAccount] = useState<Account | null>(null);
   const [withdrawAccount, setWithdrawAccount] = useState<Account | null>(null);
+  const [transferAccount, setTransferAccount] = useState<Account | null>(null);
 
   const fetchAccounts = async () => {
     if (!accessToken) return;
@@ -216,6 +218,16 @@ export const AccountList: React.FC = () => {
                     >
                       <i className="bi bi-arrow-up-right"></i> Withdraw
                     </button>
+                    <button
+                      type="button"
+                      className="btn-quick btn-quick--transfer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setTransferAccount(acc);
+                      }}
+                    >
+                      <i className="bi bi-send"></i> Transfer
+                    </button>
                   </div>
 
                   {/* Card footer */}
@@ -267,6 +279,17 @@ export const AccountList: React.FC = () => {
           onClose={() => setWithdrawAccount(null)}
           onSuccess={() => {
             setWithdrawAccount(null);
+            fetchAccounts();
+          }}
+        />
+      )}
+
+      {transferAccount && (
+        <InternalTransferModal
+          sourceAccount={transferAccount}
+          onClose={() => setTransferAccount(null)}
+          onSuccess={() => {
+            setTransferAccount(null);
             fetchAccounts();
           }}
         />

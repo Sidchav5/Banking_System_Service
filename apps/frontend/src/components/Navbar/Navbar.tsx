@@ -36,6 +36,12 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
       authRequired: true,
     },
     {
+      key: 'transactions',
+      label: 'Transfers & History',
+      icon: 'bi-arrow-left-right',
+      authRequired: true,
+    },
+    {
       key: 'profile',
       label: 'My Profile',
       icon: 'bi-person-circle',

@@ -19,6 +19,7 @@ async function initializeDatabase() {
     const userSchema = fs.readFileSync(path.join(__dirname, '../services/user-service/src/schema.sql'), 'utf8');
     const accountSchema = fs.readFileSync(path.join(__dirname, '../services/account-service/src/schema.sql'), 'utf8');
     const ledgerSchema = fs.readFileSync(path.join(__dirname, '../services/ledger-service/src/schema.sql'), 'utf8');
+    const transactionSchema = fs.readFileSync(path.join(__dirname, '../services/transaction-service/src/schema.sql'), 'utf8');
 
     console.log('📜 Applying auth-service database schema...');
     await client.query(authSchema);
@@ -35,6 +36,10 @@ async function initializeDatabase() {
     console.log('📜 Applying ledger-service database schema...');
     await client.query(ledgerSchema);
     console.log('✅ Ledger schema applied.');
+
+    console.log('📜 Applying transaction-service database schema...');
+    await client.query(transactionSchema);
+    console.log('✅ Transaction schema applied.');
 
     client.release();
     console.log('🎉 Neon PostgreSQL initialization complete!');

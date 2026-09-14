@@ -12,6 +12,8 @@ interface DepositModalProps {
 
 const API_BASE_URL = 'http://localhost:3000/api/v1';
 
+const PRESETS = [500, 1000, 5000, 10000, 50000];
+
 export const DepositModal: React.FC<DepositModalProps> = ({
   account,
   onClose,
@@ -30,6 +32,11 @@ export const DepositModal: React.FC<DepositModalProps> = ({
       currency: 'INR',
       maximumFractionDigits: 2,
     });
+
+  const numericValue = parseFloat(rupees);
+  const isValidAmount = !isNaN(numericValue) && numericValue > 0;
+  const projectedBalance =
+    account.balance + (isValidAmount ? Math.round(numericValue * 100) : 0);
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +59,9 @@ export const DepositModal: React.FC<DepositModalProps> = ({
         {
           accountNumber: account.accountNumber,
           amount: amountPaise,
-          description: description.trim() || `Cash deposit into account ${account.accountNumber}`,
+          description:
+            description.trim() ||
+            `Cash deposit into account ${account.accountNumber}`,
         },
         {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -60,7 +69,9 @@ export const DepositModal: React.FC<DepositModalProps> = ({
       );
 
       if (res.data.success) {
-        setSuccessMsg(`Successfully deposited ${formatCurrency(amountPaise)} into ${account.accountNumber}`);
+        setSuccessMsg(
+          `Successfully deposited ${formatCurrency(amountPaise)} into ${account.accountNumber}`
+        );
         setTimeout(() => {
           onSuccess();
         }, 1200);
@@ -76,144 +87,174 @@ export const DepositModal: React.FC<DepositModalProps> = ({
   };
 
   return (
-    <div className="modal-backdrop-custom" onClick={onClose}>
+    <div className="deposit-modal-backdrop" onClick={onClose}>
       <div
-        className="deposit-modal"
+        className="deposit-modal-card"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
+        aria-modal="true"
         aria-labelledby="depositModalTitle"
       >
-        <div className="deposit-modal__header">
-          <div className="deposit-modal__title-group">
-            <span className="deposit-modal__icon">
+        {/* Header */}
+        <header className="deposit-modal-header">
+          <div className="deposit-modal-header__left">
+            <div className="deposit-modal-header__icon">
               <i className="bi bi-arrow-down-left-circle-fill"></i>
-            </span>
+            </div>
             <div>
-              <h2 id="depositModalTitle" className="deposit-modal__title">
+              <h2 id="depositModalTitle" className="deposit-modal-header__title">
                 Deposit Funds
               </h2>
-              <p className="deposit-modal__subtitle">
-                Account: <code>{account.accountNumber}</code>
-              </p>
+              <div className="deposit-modal-header__meta">
+                <span className="deposit-modal-header__acct">
+                  {account.accountNumber}
+                </span>
+                <span className="deposit-modal-header__type">
+                  {account.accountType}
+                </span>
+              </div>
             </div>
           </div>
           <button
             type="button"
-            className="deposit-modal__close"
+            className="deposit-modal-close"
             onClick={onClose}
             aria-label="Close"
           >
             <i className="bi bi-x-lg"></i>
           </button>
-        </div>
+        </header>
 
-        <form onSubmit={handleDeposit} className="deposit-modal__body">
-          {/* Balance info card */}
-          <div className="deposit-modal__balance-card">
-            <div className="balance-info">
-              <span className="balance-info__label">Current Balance</span>
-              <span className="balance-info__value">
+        {/* Body */}
+        <div className="deposit-modal-body">
+          {/* Balance strip */}
+          <section className="balance-strip">
+            <div className="balance-strip__item">
+              <span className="balance-strip__label">Current Balance</span>
+              <span className="balance-strip__value">
                 {formatCurrency(account.balance)}
               </span>
             </div>
-            <div className="balance-info">
-              <span className="balance-info__label">Account Type</span>
-              <span className="balance-info__badge">{account.accountType}</span>
+            <div className="balance-strip__arrow">
+              <i className="bi bi-arrow-right"></i>
             </div>
-          </div>
+            <div className="balance-strip__item balance-strip__item--projected">
+              <span className="balance-strip__label">After Deposit</span>
+              <span className="balance-strip__value balance-strip__value--accent">
+                {formatCurrency(projectedBalance)}
+              </span>
+            </div>
+          </section>
 
           {error && (
-            <div className="deposit-alert deposit-alert--danger">
-              <i className="bi bi-exclamation-octagon-fill"></i>
+            <div className="deposit-alert deposit-alert--danger" role="alert">
+              <i className="bi bi-exclamation-triangle-fill"></i>
               <span>{error}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="deposit-alert deposit-alert--success">
+            <div className="deposit-alert deposit-alert--success" role="alert">
               <i className="bi bi-check-circle-fill"></i>
               <span>{successMsg}</span>
             </div>
           )}
 
-          <div className="form-group mb-3">
-            <label htmlFor="depositAmount" className="form-label">
-              Deposit Amount (₹ INR)
-            </label>
-            <div className="input-group-custom">
-              <span className="input-prefix">₹</span>
-              <input
-                id="depositAmount"
-                type="number"
-                step="0.01"
-                min="1"
-                className="form-input"
-                placeholder="e.g. 5000"
-                value={rupees}
-                onChange={(e) => setRupees(e.target.value)}
-                disabled={loading}
-                autoFocus
-                required
-              />
+          <form onSubmit={handleDeposit} className="deposit-form">
+            {/* Amount */}
+            <div className="field">
+              <label htmlFor="depositAmount">Deposit amount</label>
+              <div className="input-affix">
+                <span className="input-affix__prefix">₹</span>
+                <input
+                  id="depositAmount"
+                  type="number"
+                  step="0.01"
+                  min="1"
+                  placeholder="e.g. 5000"
+                  value={rupees}
+                  onChange={(e) => setRupees(e.target.value)}
+                  disabled={loading}
+                  autoFocus
+                  required
+                />
+                <span className="input-affix__suffix">INR</span>
+              </div>
+
+              <div className="preset-chips">
+                {PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    className={`preset-chip ${
+                      rupees === preset.toString() ? 'is-active' : ''
+                    }`}
+                    onClick={() => setRupees(preset.toString())}
+                    disabled={loading}
+                  >
+                    +₹{preset.toLocaleString('en-IN')}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Preset quick buttons */}
-          <div className="preset-chips">
-            {[500, 1000, 5000, 10000, 50000].map((preset) => (
+            {/* Description */}
+            <div className="field">
+              <label htmlFor="depositDesc">
+                Description <span className="field__optional">Optional</span>
+              </label>
+              <div className="input-affix">
+                <span className="input-affix__icon">
+                  <i className="bi bi-chat-left-text"></i>
+                </span>
+                <input
+                  id="depositDesc"
+                  type="text"
+                  placeholder="e.g. Salary deposit, Cash deposit"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  disabled={loading}
+                  maxLength={80}
+                />
+              </div>
+              <div className="field__hint-row">
+                <span className="field__hint">
+                  Appears on your statement
+                </span>
+                <span className="field__counter">{description.length}/80</span>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="deposit-modal-footer">
               <button
-                key={preset}
                 type="button"
-                className="preset-chip"
-                onClick={() => setRupees(preset.toString())}
+                className="btn btn--ghost"
+                onClick={onClose}
+                disabled={loading}
               >
-                +₹{preset.toLocaleString('en-IN')}
+                Cancel
               </button>
-            ))}
-          </div>
-
-          <div className="form-group mb-4">
-            <label htmlFor="depositDesc" className="form-label">
-              Description / Memo (Optional)
-            </label>
-            <input
-              id="depositDesc"
-              type="text"
-              className="form-input"
-              placeholder="e.g. Salary Deposit, Cash Deposit"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="deposit-modal__footer">
-            <button
-              type="button"
-              className="btn-custom btn-custom--ghost"
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn-custom btn-custom--deposit"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" />
-                  Posting Journal...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-check2-circle"></i> Complete Deposit
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+              <button
+                type="submit"
+                className="btn btn--deposit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <span className="spinner" />
+                    Posting journal…
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check2-circle"></i>
+                    Complete Deposit
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
