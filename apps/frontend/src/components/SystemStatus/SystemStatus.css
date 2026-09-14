@@ -341,41 +341,46 @@
 
 /* =========================================================
    Service grid & high-contrast cards
+   Light surface + colored top status strip
    ========================================================= */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: 16px;
 }
 
 .service-card {
   position: relative;
   background: var(--bf-surface);
-  border: 1.5px solid var(--bf-border);
+  border: 1px solid var(--bf-border);
   border-radius: var(--bf-radius-lg);
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(10, 21, 36, 0.04);
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  box-shadow: 0 4px 12px rgba(10, 21, 36, 0.06);
+  transition: transform 200ms ease, box-shadow 200ms ease,
+    border-color 200ms ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .service-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 10px 26px rgba(10, 21, 36, 0.1);
+  box-shadow: 0 14px 30px rgba(10, 21, 36, 0.12);
 }
 
-.service-card--ok       { border-color: rgba(16, 185, 129, 0.35); }
-.service-card--degraded { border-color: rgba(245, 158, 11, 0.35); }
-.service-card--down     { border-color: rgba(239, 68, 68, 0.35); }
+/* Status-tinted border on hover */
+.service-card--ok:hover       { border-color: rgba(16, 185, 129, 0.55); }
+.service-card--degraded:hover { border-color: rgba(245, 158, 11, 0.55); }
+.service-card--down:hover     { border-color: rgba(239, 68, 68, 0.55); }
+.service-card--checking:hover { border-color: rgba(34, 211, 238, 0.55); }
 
-/* Accent bar on the left edge */
+/* Top status strip — high-visibility accent */
 .service-card__bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 5px;
+  position: relative;
+  width: 100%;
+  height: 5px;
   background: var(--bf-border-strong);
   transition: background 200ms ease;
+  flex-shrink: 0;
 }
 
 .service-card--ok       .service-card__bar { background: var(--bf-success); }
@@ -383,14 +388,22 @@
 .service-card--down     .service-card__bar { background: var(--bf-danger); }
 .service-card--checking .service-card__bar { background: var(--bf-accent); }
 
-/* Card inner content padding */
+/* Soft glow for the strip on hover */
+.service-card--ok:hover       .service-card__bar { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+.service-card--degraded:hover .service-card__bar { box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+.service-card--down:hover     .service-card__bar { box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+.service-card--checking:hover .service-card__bar { box-shadow: 0 0 10px rgba(34, 211, 238, 0.5); }
+
+/* Content wrapper */
 .service-card__content {
-  padding: 18px 20px 18px 22px;
+  padding: 16px 20px 18px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  flex: 1;
 }
 
+/* Header: name + port */
 .service-card__header {
   display: flex;
   align-items: center;
@@ -403,11 +416,12 @@
   align-items: center;
   gap: 10px;
   min-width: 0;
+  flex: 1;
 }
 
 .service-card__name {
   margin: 0;
-  font-size: 14.5px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.2px;
   color: var(--bf-text);
@@ -422,54 +436,68 @@
   font-weight: 700;
   letter-spacing: 0.5px;
   color: var(--bf-navy-800);
-  background: #f1f5f9;
-  border: 1px solid var(--bf-border-strong);
-  padding: 3px 9px;
+  background: var(--bf-surface-soft);
+  border: 1px solid var(--bf-border);
+  padding: 4px 10px;
   border-radius: var(--bf-radius-pill);
   flex-shrink: 0;
 }
 
+/* Details block */
 .service-card__details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: var(--bf-surface-soft);
-  border: 1px solid var(--bf-border);
-  padding: 10px 14px;
-  border-radius: var(--bf-radius-sm);
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--bf-border);
 }
 
 .service-card__row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 
 .service-card__label {
   font-size: 11.5px;
   font-weight: 600;
   color: var(--bf-text-muted);
-  letter-spacing: 0.2px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 
 .service-card__uptime {
   font-family: var(--bf-font-mono);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--bf-text);
+  letter-spacing: 0.2px;
 }
 
-/* Status Badges */
+/* Status badges — high contrast */
 .service-card__badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 9px;
+  gap: 6px;
+  padding: 4px 10px;
   border-radius: var(--bf-radius-pill);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.7px;
   text-transform: uppercase;
   border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* Colored dot inside the badge */
+.service-card__badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 25%, transparent);
 }
 
 .service-card__badge--ok {
@@ -491,12 +519,18 @@
 }
 
 .service-card__badge--checking {
-  color: #0284c7;
+  color: #0369a1;
   background: #f0f9ff;
   border-color: #bae6fd;
 }
 
-/* Status dots */
+.service-card__badge--checking::before {
+  animation: bf-pulse 1.2s ease-in-out infinite;
+}
+
+/* =========================================================
+   Status dots (header row next to service name)
+   ========================================================= */
 .status-dot {
   width: 10px;
   height: 10px;
@@ -508,7 +542,7 @@
 
 .status-dot.ok {
   background: var(--bf-success);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22);
 }
 
 .status-dot.ok::after {
@@ -517,18 +551,18 @@
   inset: -3px;
   border-radius: 50%;
   border: 1px solid var(--bf-success);
-  opacity: 0.6;
+  opacity: 0.55;
   animation: bf-pulse 2.4s ease-in-out infinite;
 }
 
 .status-dot.degraded {
   background: var(--bf-warn);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22);
 }
 
 .status-dot.down {
   background: var(--bf-danger);
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.22);
 }
 
 .status-dot.checking {
