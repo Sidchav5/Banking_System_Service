@@ -53,7 +53,7 @@
 }
 
 .status-container {
-  max-width: 1180px;
+  max-width: 1320px;
   margin: 0 auto;
 }
 
@@ -345,8 +345,8 @@
    ========================================================= */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
 }
 
 .service-card {
@@ -416,20 +416,25 @@
   align-items: center;
   gap: 10px;
   min-width: 0;
-  flex: 1;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
-
 .service-card__name {
   margin: 0;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 700;
   letter-spacing: -0.2px;
   color: var(--bf-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
 }
-
+.service-card__badge {
+  /* ...existing... */
+  flex-shrink: 0;
+}
 .service-card__port {
   font-family: var(--bf-font-mono);
   font-size: 11px;
@@ -596,4 +601,24 @@
   .stat-card__value { font-size: 18px; }
   .services-grid { grid-template-columns: 1fr; }
   .status-meta { flex-direction: column; align-items: flex-start; }
+}
+/* 4 → 3 cards per row */
+@media (max-width: 1100px) {
+  .services-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* 3 → 2 cards per row */
+@media (max-width: 820px) {
+  .services-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 2 → 1 card per row */
+@media (max-width: 540px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
 }
