@@ -61,9 +61,9 @@ app.post('/journals/deposit', authenticateToken, async (req, res, next) => {
     const { accountNumber, amount, description } = req.body;
     if (!accountNumber || !amount || amount <= 0) {
       throw new AppError(
-        Errors.INVALID_INPUT,
         'Valid accountNumber and positive amount (in paise) are required',
-        400
+        400,
+        'INVALID_INPUT'
       );
     }
 
@@ -103,9 +103,9 @@ app.post('/journals/withdraw', authenticateToken, async (req, res, next) => {
     const { accountNumber, amount, description } = req.body;
     if (!accountNumber || !amount || amount <= 0) {
       throw new AppError(
-        Errors.INVALID_INPUT,
         'Valid accountNumber and positive amount (in paise) are required',
-        400
+        400,
+        'INVALID_INPUT'
       );
     }
 
@@ -198,7 +198,7 @@ app.get('/journals/:id', authenticateToken, async (req, res, next) => {
     );
 
     if (journalRes.rows.length === 0) {
-      throw new AppError(Errors.NOT_FOUND, `Journal entry with ID ${id} not found`, 404);
+      throw Errors.NotFound(`Journal entry with ID ${id}`);
     }
 
     const entriesRes = await query(

@@ -2,7 +2,6 @@ import { pool } from '../db';
 import { config } from '../config';
 import {
   AppError,
-  Errors,
   createLogger,
   JournalEntry,
   LedgerEntry,
@@ -29,9 +28,9 @@ export async function postJournalEntry(
 
   if (!entries || entries.length < 2) {
     throw new AppError(
-      Errors.INVALID_INPUT,
       'Double-entry journal posting requires at least 2 entries (debit & credit)',
-      400
+      400,
+      'INVALID_INPUT'
     );
   }
 
@@ -42,9 +41,9 @@ export async function postJournalEntry(
   for (const entry of entries) {
     if (entry.amount <= 0) {
       throw new AppError(
-        Errors.INVALID_INPUT,
         `Entry amount must be greater than zero. Received: ${entry.amount}`,
-        400
+        400,
+        'INVALID_INPUT'
       );
     }
     if (entry.entryDirection === 'DEBIT') {
@@ -53,9 +52,9 @@ export async function postJournalEntry(
       totalCredits += entry.amount;
     } else {
       throw new AppError(
-        Errors.INVALID_INPUT,
         `Invalid entry direction: ${entry.entryDirection}. Must be DEBIT or CREDIT`,
-        400
+        400,
+        'INVALID_INPUT'
       );
     }
   }
@@ -67,9 +66,9 @@ export async function postJournalEntry(
       referenceId,
     });
     throw new AppError(
-      'UNBALANCED_JOURNAL',
       `Double-entry principle violated: Total DEBIT (${totalDebits}) does not equal Total CREDIT (${totalCredits})`,
-      400
+      400,
+      'UNBALANCED_JOURNAL'
     );
   }
 
