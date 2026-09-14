@@ -11,13 +11,8 @@ declare global {
   }
 }
 
-const JWT_SECRET = process.env.JWT_SECRET ?? 'bankflow_dev_jwt_secret_key_32_chars';
-
-/**
- * Authentication middleware that verifies JWT bearer tokens.
- * Attaches decoded payload to req.user.
- */
 export function authenticateToken(req: Request, res: Response, next: NextFunction): void {
+  const secret = process.env.JWT_SECRET || 'bankflow_dev_jwt_secret_key_32_chars';
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
@@ -35,7 +30,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(token, secret) as JwtPayload;
     req.user = decoded;
     next();
   } catch (err) {
