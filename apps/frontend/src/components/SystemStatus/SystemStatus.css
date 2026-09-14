@@ -404,6 +404,7 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  color: white;
 }
 
 /* Header: name + port */
@@ -436,6 +437,7 @@
   text-overflow: ellipsis;
   min-width: 0;
   flex: 1;
+  color: wheat;
 }
 
 .service-card__port {

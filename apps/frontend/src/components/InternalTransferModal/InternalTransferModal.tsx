@@ -101,6 +101,8 @@ export const InternalTransferModal: React.FC<InternalTransferModalProps> = ({
     } catch (err: any) {
       const msg =
         err.response?.data?.error?.message ||
+        err.response?.data?.message ||
+        err.message ||
         'Failed to execute transfer. Ensure transaction & ledger services are running.';
       setError(msg);
     } finally {

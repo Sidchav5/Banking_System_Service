@@ -106,16 +106,19 @@ export async function processInternalTransfer(
       `${config.ledgerServiceUrl}/journals`,
       journalPayload,
       {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: token ? { Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}` } : {},
       }
     );
   } catch (err: any) {
-    logger.error('Failed to post ledger journal for transfer', { err: err.message });
-    throw new AppError(
-      'Ledger journal posting failed. Transfer aborted.',
-      500,
-      'LEDGER_ERROR'
-    );
+    const detail =
+      err.response?.data?.error?.message ||
+      err.message ||
+      'Ledger journal posting failed. Transfer aborted.';
+    logger.error('Failed to post ledger journal for transfer', {
+      err: err.message,
+      detail: err.response?.data,
+    });
+    throw new AppError(detail, err.response?.status || 500, 'LEDGER_ERROR');
   }
 
   // 4. Record Transaction Header
