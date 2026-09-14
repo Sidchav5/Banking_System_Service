@@ -11,19 +11,17 @@ interface ServiceHealth {
 
 const SERVICES = [
   { name: 'API Gateway', port: 3000, endpoint: 'http://localhost:3000/health' },
-  { name: 'Auth Service', port: 3001, endpoint: 'http://localhost:3001/health' },
-  { name: 'User Service', port: 3002, endpoint: 'http://localhost:3002/health' },
-  { name: 'Account Service', port: 3003, endpoint: 'http://localhost:3003/health' },
-  { name: 'Ledger Service', port: 3004, endpoint: 'http://localhost:3004/health' },
-  { name: 'Transaction Service', port: 3005, endpoint: 'http://localhost:3005/health' },
-  { name: 'Payment Service', port: 3006, endpoint: 'http://localhost:3006/health' },
-  { name: 'Beneficiary Service', port: 3007, endpoint: 'http://localhost:3007/health' },
-  { name: 'Bank Service', port: 3008, endpoint: 'http://localhost:3008/health' },
-  { name: 'Settlement Service', port: 3009, endpoint: 'http://localhost:3009/health' },
-  { name: 'Reconciliation Service', port: 3010, endpoint: 'http://localhost:3010/health' },
-  { name: 'Notification Service', port: 3011, endpoint: 'http://localhost:3011/health' },
-  { name: 'Payment Network Sim', port: 4000, endpoint: 'http://localhost:4000/health' },
-  { name: 'External Bank Sim', port: 4001, endpoint: 'http://localhost:4001/health' },
+  { name: 'Auth Service', port: 3001, endpoint: 'http://localhost:3000/api/v1/auth/health' },
+  { name: 'User Service', port: 3002, endpoint: 'http://localhost:3000/api/v1/users/health' },
+  { name: 'Account Service', port: 3003, endpoint: 'http://localhost:3000/api/v1/accounts/health' },
+  { name: 'Ledger Service', port: 3004, endpoint: 'http://localhost:3000/api/v1/ledger/health' },
+  { name: 'Transaction Service', port: 3005, endpoint: 'http://localhost:3000/api/v1/transactions/health' },
+  { name: 'Payment Service', port: 3006, endpoint: 'http://localhost:3000/api/v1/payments/health' },
+  { name: 'Beneficiary Service', port: 3007, endpoint: 'http://localhost:3000/api/v1/beneficiaries/health' },
+  { name: 'Bank Service', port: 3008, endpoint: 'http://localhost:3000/api/v1/banks/health' },
+  { name: 'Settlement Service', port: 3009, endpoint: 'http://localhost:3000/api/v1/settlement/health' },
+  { name: 'Reconciliation Service', port: 3010, endpoint: 'http://localhost:3000/api/v1/reconciliation/health' },
+  { name: 'Notification Service', port: 3011, endpoint: 'http://localhost:3000/api/v1/notifications/health' },
 ];
 
 export const SystemStatus: React.FC = () => {
