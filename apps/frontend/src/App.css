@@ -169,13 +169,6 @@
   font-size: 0.82rem;
 }
 
-/* Services Grid */
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 0.75rem;
-  width: 100%;
-}
 
 .service-card {
   background: var(--bg-card);
