@@ -203,34 +203,49 @@ export const SystemStatus: React.FC = () => {
           {SERVICES.map((svc) => {
             const current = healthData.find((h) => h.port === svc.port);
             const status = current?.status ?? (loading ? 'checking' : 'down');
+            const statusLabel =
+              status === 'ok'
+                ? 'Operational'
+                : status === 'degraded'
+                ? 'Degraded'
+                : status === 'checking'
+                ? 'Checking…'
+                : 'Offline';
 
             return (
               <article
                 key={svc.port}
                 className={`service-card service-card--${status}`}
               >
-                <div className="service-card__head">
-                  <span className={`status-dot ${status}`} />
-                  <h3 className="service-card__name">{svc.name}</h3>
-                  <span className="service-card__port">:{svc.port}</span>
-                </div>
-
-                <div className="service-card__body">
-                  <div className="service-card__row">
-                    <span className="service-card__label">Status</span>
-                    <span className={`service-card__status status-text--${status}`}>
-                      {status === 'checking' ? 'Checking…' : status}
-                    </span>
-                  </div>
-                  <div className="service-card__row">
-                    <span className="service-card__label">Uptime</span>
-                    <span className="service-card__value">
-                      {current?.uptime !== undefined ? `${current.uptime}s` : '—'}
-                    </span>
-                  </div>
-                </div>
-
                 <div className="service-card__bar" />
+
+                <div className="service-card__content">
+                  <header className="service-card__header">
+                    <div className="service-card__title-group">
+                      <span className={`status-dot ${status}`} />
+                      <h3 className="service-card__name">{svc.name}</h3>
+                    </div>
+                    <span className="service-card__port">:{svc.port}</span>
+                  </header>
+
+                  <div className="service-card__details">
+                    <div className="service-card__row">
+                      <span className="service-card__label">Status</span>
+                      <span
+                        className={`service-card__badge service-card__badge--${status}`}
+                      >
+                        {statusLabel}
+                      </span>
+                    </div>
+
+                    <div className="service-card__row">
+                      <span className="service-card__label">Uptime</span>
+                      <span className="service-card__uptime">
+                        {current?.uptime !== undefined ? `${current.uptime}s` : '—'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </article>
             );
           })}
