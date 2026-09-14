@@ -7,7 +7,10 @@ interface LoginFormProps {
   onSwitchToRegister?: () => void;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToRegister }) => {
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onSuccess,
+  onSwitchToRegister,
+}) => {
   const { login, loading, error, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,109 +25,180 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchToRegis
   };
 
   return (
-    <div className="container py-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6 col-lg-5">
-          <div className="card login-card">
-            <div className="login-header">
-              <div className="icon-container">
-                <i className="bi bi-shield-lock"></i>
-              </div>
-              <h4 className="mb-1 font-weight-bold">BankFlow Secure Portal</h4>
-              <p className="text-muted small mb-0">Enter your credentials to access your account</p>
+    <div className="login-page">
+      <div className="login-shell">
+        {/* ---------- Left: Brand / Trust panel ---------- */}
+        <aside className="login-hero">
+          <div className="login-hero__brand">
+            <div className="login-hero__logo">
+              <i className="bi bi-bank2"></i>
             </div>
+            <span className="login-hero__brand-name">BankFlow</span>
+          </div>
 
-            <div className="login-body">
-              {error && (
-                <div className="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                  {error}
-                  <button type="button" className="btn-close" onClick={clearError}></button>
-                </div>
-              )}
+          <div className="login-hero__content">
+            <h2>Secure banking,<br />reimagined for you.</h2>
+            <p>
+              Manage your accounts, transactions, and limits with
+              bank-grade security and a modern experience.
+            </p>
 
-              <form onSubmit={handleSubmit}>
-                <div className="form-floating mb-3">
+            <ul className="login-hero__features">
+              <li>
+                <i className="bi bi-shield-check"></i>
+                <span>256-bit encryption</span>
+              </li>
+              <li>
+                <i className="bi bi-fingerprint"></i>
+                <span>Biometric-ready access</span>
+              </li>
+              <li>
+                <i className="bi bi-activity"></i>
+                <span>Real-time fraud monitoring</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="login-hero__footer">
+            <i className="bi bi-lock-fill"></i>
+            <span>Your data is protected with enterprise-grade security</span>
+          </div>
+        </aside>
+
+        {/* ---------- Right: Form ---------- */}
+        <main className="login-main">
+          <div className="login-main__inner">
+            <header className="login-head">
+              <h1 className="login-head__title">Welcome back</h1>
+              <p className="login-head__subtitle">
+                Sign in to continue to your BankFlow account
+              </p>
+            </header>
+
+            {error && (
+              <div className="login-alert" role="alert">
+                <i className="bi bi-exclamation-triangle-fill"></i>
+                <span>{error}</span>
+                <button
+                  type="button"
+                  className="login-alert__close"
+                  aria-label="Dismiss"
+                  onClick={clearError}
+                >
+                  <i className="bi bi-x-lg"></i>
+                </button>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="login-form">
+              {/* Email */}
+              <div className="field">
+                <label htmlFor="loginEmail">Email address</label>
+                <div className="input-affix">
+                  <span className="input-affix__icon">
+                    <i className="bi bi-envelope"></i>
+                  </span>
                   <input
-                    type="email"
-                    className="form-control"
                     id="loginEmail"
+                    type="email"
+                    autoComplete="email"
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-                  <label htmlFor="loginEmail">
-                    <i className="bi bi-envelope me-1"></i> Email address
-                  </label>
                 </div>
+              </div>
 
-                <div className="form-floating mb-3 position-relative">
+              {/* Password */}
+              <div className="field">
+                <label htmlFor="loginPassword">Password</label>
+                <div className="input-affix">
+                  <span className="input-affix__icon">
+                    <i className="bi bi-lock"></i>
+                  </span>
                   <input
-                    type={showPassword ? 'text' : 'password'}
-                    className="form-control"
                     id="loginPassword"
-                    placeholder="Password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
-                  <label htmlFor="loginPassword">
-                    <i className="bi bi-lock me-1"></i> Password
-                  </label>
                   <button
                     type="button"
-                    className="btn btn-link position-absolute end-0 top-50 translate-middle-y me-2 text-muted text-decoration-none"
+                    className="input-affix__toggle"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    <i className={`bi bi-${showPassword ? 'eye-slash' : 'eye'}`}></i>
+                    <i
+                      className={`bi bi-${showPassword ? 'eye-slash' : 'eye'}`}
+                    ></i>
                   </button>
                 </div>
-
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <div className="form-check">
-                    <input className="form-check-input" type="checkbox" id="rememberMe" />
-                    <label className="form-check-label text-muted small" htmlFor="rememberMe">
-                      Remember device
-                    </label>
-                  </div>
-                  <a href="#" className="text-info small text-decoration-none" onClick={(e) => e.preventDefault()}>
-                    Forgot Password?
-                  </a>
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn btn-bankflow w-100 d-flex align-items-center justify-content-center"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                      Authenticating...
-                    </>
-                  ) : (
-                    <>
-                      <i className="bi bi-box-arrow-in-right me-2"></i> Sign In to Account
-                    </>
-                  )}
-                </button>
-              </form>
-
-              <hr className="my-4" />
-
-              <div className="text-center">
-                <span className="text-muted small me-2">Don't have an account yet?</span>
-                <button
-                  className="btn btn-link text-info p-0 font-weight-bold text-decoration-none small"
-                  onClick={onSwitchToRegister}
-                >
-                  Create Customer Account
-                </button>
               </div>
+
+              {/* Remember + Forgot */}
+              <div className="login-form__row">
+                <label className="checkbox">
+                  <input type="checkbox" id="rememberMe" />
+                  <span className="checkbox__box">
+                    <i className="bi bi-check"></i>
+                  </span>
+                  <span className="checkbox__label">Remember this device</span>
+                </label>
+
+                <a
+                  href="#"
+                  className="login-form__link"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Forgot password?
+                </a>
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                className="btn btn--primary btn--block"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <span className="spinner" />
+                    Authenticating…
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-box-arrow-in-right"></i>
+                    Sign In
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="login-divider">
+              <span>New to BankFlow?</span>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn--ghost btn--block"
+              onClick={onSwitchToRegister}
+            >
+              <i className="bi bi-person-plus"></i>
+              Create Customer Account
+            </button>
+
+            <div className="login-trust">
+              <i className="bi bi-shield-lock-fill"></i>
+              <span>
+                Protected by BankFlow Secure • <strong>PCI-DSS compliant</strong>
+              </span>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

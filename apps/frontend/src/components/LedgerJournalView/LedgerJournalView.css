@@ -1,0 +1,279 @@
+/* Ledger Journal View Styling */
+.ledger-view-page {
+  padding: 32px 20px;
+  min-height: calc(100vh - 70px);
+  background: #060b13;
+  color: #ffffff;
+}
+
+.ledger-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ledger-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.ledger-header__eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #38bdf8;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.ledger-header__title {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  color: #ffffff;
+}
+
+.ledger-header__subtitle {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.ledger-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 6px 14px;
+  border-radius: 10px;
+}
+
+.account-selector__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.account-selector__select {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.account-selector__select option {
+  background: #0d1b2a;
+  color: #ffffff;
+}
+
+.btn--refresh {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn--refresh:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.ledger-alert {
+  padding: 14px 18px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.ledger-alert--danger {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.ledger-table-card {
+  background: rgba(13, 27, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #ffffff;
+  font-size: 13.5px;
+}
+
+.ledger-table th {
+  background: rgba(15, 23, 42, 0.9);
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ledger-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+
+.ledger-table tbody tr:hover {
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.ref-code {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: var(--bf-font-mono);
+  font-size: 12px;
+}
+
+.type-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.type-badge--deposit {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.type-badge--withdrawal {
+  background: rgba(244, 63, 94, 0.15);
+  color: #f43f5e;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.type-badge--transfer {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.description-col {
+  color: #cbd5e1;
+  max-width: 280px;
+}
+
+.direction-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.direction-badge--credit {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.direction-badge--debit {
+  background: rgba(244, 63, 94, 0.15);
+  color: #f43f5e;
+}
+
+.amount-col {
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.text-credit {
+  color: #10b981;
+}
+
+.text-debit {
+  color: #f43f5e;
+}
+
+.ledger-empty {
+  padding: 60px 20px;
+  text-align: center;
+  background: rgba(13, 27, 42, 0.6);
+  border: 1px dashed rgba(56, 189, 248, 0.25);
+  border-radius: 16px;
+}
+
+.ledger-empty__icon {
+  font-size: 48px;
+  color: #38bdf8;
+  margin-bottom: 12px;
+}
+
+.ledger-empty h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.ledger-empty p {
+  color: #94a3b8;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.ledger-empty code {
+  color: #38bdf8;
+}
+
+.ledger-skeleton-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ledger-skeleton-row {
+  height: 52px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s infinite;
+  border-radius: 10px;
+}
+
+@keyframes skeletonLoading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

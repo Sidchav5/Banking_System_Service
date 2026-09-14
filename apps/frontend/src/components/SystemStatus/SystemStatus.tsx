@@ -29,6 +29,7 @@ const SERVICES = [
 export const SystemStatus: React.FC = () => {
   const [healthData, setHealthData] = useState<ServiceHealth[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
   const checkHealth = async () => {
     setLoading(true);
@@ -52,6 +53,7 @@ export const SystemStatus: React.FC = () => {
       })
     );
     setHealthData(results);
+    setLastChecked(new Date());
     setLoading(false);
   };
 
@@ -59,45 +61,182 @@ export const SystemStatus: React.FC = () => {
     checkHealth();
   }, []);
 
+  // Derived summary (UI only)
+  const summary = SERVICES.reduce(
+    (acc, svc) => {
+      const current = healthData.find((h) => h.port === svc.port);
+      const status = current?.status ?? (loading ? null : 'down');
+      if (status === 'ok') acc.ok++;
+      else if (status === 'degraded') acc.degraded++;
+      else if (status === 'down') acc.down++;
+      return acc;
+    },
+    { ok: 0, degraded: 0, down: 0 }
+  );
+
+  const overallStatus =
+    !loading && summary.down === 0 && summary.degraded === 0
+      ? 'operational'
+      : !loading && summary.down > 0
+      ? 'critical'
+      : !loading && summary.degraded > 0
+      ? 'partial'
+      : 'checking';
+
+  const formatTime = (date: Date) =>
+    date.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+
   return (
-    <div className="container py-4">
-      <div className="status-header text-center">
-        <h2 className="fw-bold mb-2">
-          <i className="bi bi-diagram-3 text-info me-2"></i> BankFlow System Architecture Status
-        </h2>
-        <p className="text-muted mb-0">Real-time health probes across 14 microservices and simulator clusters</p>
-      </div>
-
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <span className="text-muted small">Showing operational health status for microservice ports 3000-4001</span>
-        <button className="btn btn-outline-info btn-sm" onClick={checkHealth} disabled={loading}>
-          <i className={`bi bi-arrow-clockwise me-1 ${loading ? 'spin' : ''}`}></i> Refresh Probes
-        </button>
-      </div>
-
-      <div className="row g-3">
-        {SERVICES.map((svc) => {
-          const current = healthData.find((h) => h.port === svc.port);
-          const status = current?.status || 'down';
-
-          return (
-            <div key={svc.port} className="col-md-6 col-lg-4">
-              <div className="card service-card p-3 h-100">
-                <div className="d-flex align-items-center justify-content-between">
-                  <div className="d-flex align-items-center gap-2">
-                    <span className={`status-dot ${status}`}></span>
-                    <h6 className="mb-0 fw-bold">{svc.name}</h6>
-                  </div>
-                  <span className="badge bg-dark font-monospace">:{svc.port}</span>
-                </div>
-                <div className="mt-2 d-flex justify-content-between align-items-center small text-muted">
-                  <span>Status: <strong className="text-uppercase">{status}</strong></span>
-                  {current?.uptime !== undefined && <span>Uptime: {current.uptime}s</span>}
-                </div>
-              </div>
+    <div className="status-page">
+      <div className="status-container">
+        {/* Hero header */}
+        <header className="status-hero">
+          <div className="status-hero__left">
+            <div className="status-hero__icon">
+              <i className="bi bi-diagram-3"></i>
             </div>
-          );
-        })}
+            <div>
+              <span className="status-hero__eyebrow">Operations Dashboard</span>
+              <h1 className="status-hero__title">System Architecture</h1>
+              <p className="status-hero__subtitle">
+                Real-time health probes across {SERVICES.length} microservices and simulator clusters
+              </p>
+            </div>
+          </div>
+
+          <div className="status-hero__right">
+            <div className={`status-overall status-overall--${overallStatus}`}>
+              <span className="status-overall__dot" />
+              <span className="status-overall__label">
+                {overallStatus === 'operational' && 'All systems operational'}
+                {overallStatus === 'partial' && 'Partial degradation'}
+                {overallStatus === 'critical' && 'Service outage detected'}
+                {overallStatus === 'checking' && 'Running health checks…'}
+              </span>
+            </div>
+            <button
+              className="btn btn--primary"
+              onClick={checkHealth}
+              disabled={loading}
+            >
+              <i className={`bi bi-arrow-clockwise ${loading ? 'spin' : ''}`}></i>
+              {loading ? 'Probing…' : 'Refresh'}
+            </button>
+          </div>
+        </header>
+
+        {/* Summary stats */}
+        <section className="status-summary">
+          <div className="stat-card">
+            <div className="stat-card__icon stat-card__icon--neutral">
+              <i className="bi bi-hdd-stack"></i>
+            </div>
+            <div className="stat-card__body">
+              <span className="stat-card__label">Total Services</span>
+              <span className="stat-card__value">{SERVICES.length}</span>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-card__icon stat-card__icon--ok">
+              <i className="bi bi-check-circle-fill"></i>
+            </div>
+            <div className="stat-card__body">
+              <span className="stat-card__label">Operational</span>
+              <span className="stat-card__value stat-card__value--ok">
+                {summary.ok}
+              </span>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-card__icon stat-card__icon--warn">
+              <i className="bi bi-exclamation-circle-fill"></i>
+            </div>
+            <div className="stat-card__body">
+              <span className="stat-card__label">Degraded</span>
+              <span className="stat-card__value stat-card__value--warn">
+                {summary.degraded}
+              </span>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-card__icon stat-card__icon--danger">
+              <i className="bi bi-x-circle-fill"></i>
+            </div>
+            <div className="stat-card__body">
+              <span className="stat-card__label">Down</span>
+              <span className="stat-card__value stat-card__value--danger">
+                {summary.down}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Meta row: legend + last checked */}
+        <div className="status-meta">
+          <div className="status-legend">
+            <span className="status-legend__item">
+              <span className="status-dot ok" /> Operational
+            </span>
+            <span className="status-legend__item">
+              <span className="status-dot degraded" /> Degraded
+            </span>
+            <span className="status-legend__item">
+              <span className="status-dot down" /> Down
+            </span>
+          </div>
+          {lastChecked && (
+            <span className="status-meta__time">
+              <i className="bi bi-clock-history"></i>
+              Last checked {formatTime(lastChecked)}
+            </span>
+          )}
+        </div>
+
+        {/* Service grid */}
+        <section className="services-grid">
+          {SERVICES.map((svc) => {
+            const current = healthData.find((h) => h.port === svc.port);
+            const status = current?.status ?? (loading ? 'checking' : 'down');
+
+            return (
+              <article
+                key={svc.port}
+                className={`service-card service-card--${status}`}
+              >
+                <div className="service-card__head">
+                  <span className={`status-dot ${status}`} />
+                  <h3 className="service-card__name">{svc.name}</h3>
+                  <span className="service-card__port">:{svc.port}</span>
+                </div>
+
+                <div className="service-card__body">
+                  <div className="service-card__row">
+                    <span className="service-card__label">Status</span>
+                    <span className={`service-card__status status-text--${status}`}>
+                      {status === 'checking' ? 'Checking…' : status}
+                    </span>
+                  </div>
+                  <div className="service-card__row">
+                    <span className="service-card__label">Uptime</span>
+                    <span className="service-card__value">
+                      {current?.uptime !== undefined ? `${current.uptime}s` : '—'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="service-card__bar" />
+              </article>
+            );
+          })}
+        </section>
       </div>
     </div>
   );

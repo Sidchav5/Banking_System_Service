@@ -12,76 +12,148 @@ export const UserProfileView: React.FC = () => {
     return user?.email ? user.email[0].toUpperCase() : 'U';
   };
 
+  const displayName = profile
+    ? `${profile.firstName} ${profile.lastName}`
+    : user?.email ?? 'User';
+
+  const kycStatus = profile?.kycStatus ?? 'PENDING';
+
+  const infoFields = [
+    {
+      icon: 'bi-fingerprint',
+      label: 'User ID',
+      value: user?.id ?? '—',
+      mono: true,
+    },
+    {
+      icon: 'bi-envelope',
+      label: 'Email address',
+      value: user?.email ?? '—',
+    },
+    {
+      icon: 'bi-phone',
+      label: 'Mobile phone',
+      value: profile?.phone || 'Not provided',
+    },
+    {
+      icon: 'bi-shield-check',
+      label: 'Account status',
+      value: user?.status || 'ACTIVE',
+      badge: true,
+    },
+  ];
+
   return (
-    <div className="container py-5">
-      <div className="row justify-content-center">
-        <div className="col-md-10 col-lg-8">
-          <div className="card profile-card">
-            <div className="profile-banner d-flex align-items-center justify-content-between">
-              <div className="d-flex align-items-center gap-3">
-                <div className="profile-avatar">{getInitials()}</div>
-                <div>
-                  <h3 className="mb-0 font-weight-bold">
-                    {profile ? `${profile.firstName} ${profile.lastName}` : user?.email}
-                  </h3>
-                  <span className="badge bg-info text-dark mt-1">{user?.role}</span>
-                </div>
+    <div className="profile-page">
+      <div className="profile-container">
+        <article className="profile-card">
+          {/* Hero banner */}
+          <header className="profile-banner">
+            <div className="profile-banner__left">
+              <div className="profile-avatar">
+                <span>{getInitials()}</span>
               </div>
 
-              <div>
-                <span className={`kyc-badge ${profile?.kycStatus ?? 'PENDING'}`}>
-                  <i className="bi bi-shield-check me-1"></i>
-                  KYC: {profile?.kycStatus ?? 'PENDING'}
-                </span>
-              </div>
-            </div>
-
-            <div className="card-body p-4">
-              <h5 className="card-title text-primary border-bottom pb-2 mb-3">
-                <i className="bi bi-person-lines-fill me-2"></i> Profile & Security Details
-              </h5>
-
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <div className="p-3 bg-light rounded">
-                    <small className="text-muted d-block mb-1">USER ID (UUID)</small>
-                    <span className="font-monospace text-dark text-break">{user?.id}</span>
-                  </div>
+              <div className="profile-banner__meta">
+                <span className="profile-banner__eyebrow">Account Holder</span>
+                <h1 className="profile-banner__name">{displayName}</h1>
+                <div className="profile-banner__pills">
+                  <span className="profile-role-pill">
+                    <i className="bi bi-person-badge"></i>
+                    {user?.role}
+                  </span>
+                  <span
+                    className={`kyc-badge kyc-badge--${kycStatus.toLowerCase()}`}
+                  >
+                    <i
+                      className={`bi ${
+                        kycStatus === 'VERIFIED'
+                          ? 'bi-patch-check-fill'
+                          : kycStatus === 'REJECTED'
+                          ? 'bi-x-octagon-fill'
+                          : 'bi-hourglass-split'
+                      }`}
+                    ></i>
+                    KYC {kycStatus}
+                  </span>
                 </div>
-
-                <div className="col-md-6">
-                  <div className="p-3 bg-light rounded">
-                    <small className="text-muted d-block mb-1">EMAIL ADDRESS</small>
-                    <span className="fw-bold text-dark">{user?.email}</span>
-                  </div>
-                </div>
-
-                <div className="col-md-6">
-                  <div className="p-3 bg-light rounded">
-                    <small className="text-muted d-block mb-1">MOBILE PHONE</small>
-                    <span className="text-dark">{profile?.phone || 'Not provided'}</span>
-                  </div>
-                </div>
-
-                <div className="col-md-6">
-                  <div className="p-3 bg-light rounded">
-                    <small className="text-muted d-block mb-1">ACCOUNT STATUS</small>
-                    <span className="badge bg-success">{user?.status || 'ACTIVE'}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 p-3 border rounded bg-white">
-                <h6 className="fw-bold text-dark mb-2">
-                  <i className="bi bi-key me-2 text-warning"></i> Active JWT Telemetry
-                </h6>
-                <small className="text-muted d-block">
-                  Your requests are signed with access tokens containing 15-minute rotation cycles & correlation tracking across API Gateway.
-                </small>
               </div>
             </div>
+          </header>
+
+          {/* Body */}
+          <div className="profile-body">
+            {/* Section: personal info */}
+            <section className="profile-section">
+              <div className="profile-section__head">
+                <i className="bi bi-person-lines-fill"></i>
+                <h2>Profile & Security</h2>
+              </div>
+
+              <div className="info-grid">
+                {infoFields.map((field) => (
+                  <div key={field.label} className="info-card">
+                    <div className="info-card__icon">
+                      <i className={`bi ${field.icon}`}></i>
+                    </div>
+                    <div className="info-card__body">
+                      <span className="info-card__label">{field.label}</span>
+                      {field.badge ? (
+                        <span className="status-pill status-pill--active">
+                          <span className="status-pill__dot" />
+                          {field.value}
+                        </span>
+                      ) : (
+                        <span
+                          className={`info-card__value ${
+                            field.mono ? 'info-card__value--mono' : ''
+                          }`}
+                        >
+                          {field.value}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Section: JWT telemetry */}
+            <section className="security-panel">
+              <div className="security-panel__icon">
+                <i className="bi bi-key-fill"></i>
+              </div>
+              <div className="security-panel__body">
+                <h3>
+                  Active JWT Session
+                  <span className="security-panel__tag">
+                    <i className="bi bi-shield-lock-fill"></i>
+                    Secured
+                  </span>
+                </h3>
+                <p>
+                  Your requests are signed with access tokens featuring
+                  15-minute rotation cycles and correlation tracking across
+                  the API Gateway.
+                </p>
+                <ul className="security-panel__list">
+                  <li>
+                    <i className="bi bi-check2-circle"></i>
+                    Token rotation: every 15 minutes
+                  </li>
+                  <li>
+                    <i className="bi bi-check2-circle"></i>
+                    Correlation ID propagated per request
+                  </li>
+                  <li>
+                    <i className="bi bi-check2-circle"></i>
+                    Enterprise-grade encryption in transit
+                  </li>
+                </ul>
+              </div>
+            </section>
           </div>
-        </div>
+        </article>
       </div>
     </div>
   );

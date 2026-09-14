@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { Account } from '@bankflow/shared';
 import { OpenAccountModal } from '../OpenAccountModal/OpenAccountModal';
 import { AccountDetailsModal } from '../AccountDetailsModal/AccountDetailsModal';
+import { DepositModal } from '../DepositModal/DepositModal';
+import { WithdrawalModal } from '../WithdrawalModal/WithdrawalModal';
 import './AccountList.css';
 
 const API_BASE_URL = 'http://localhost:3000/api/v1';
@@ -15,6 +17,8 @@ export const AccountList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showOpenModal, setShowOpenModal] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [depositAccount, setDepositAccount] = useState<Account | null>(null);
+  const [withdrawAccount, setWithdrawAccount] = useState<Account | null>(null);
 
   const fetchAccounts = async () => {
     if (!accessToken) return;
@@ -38,97 +42,231 @@ export const AccountList: React.FC = () => {
     fetchAccounts();
   }, [accessToken]);
 
-  const formatCurrency = (paise: number) => {
-    return (paise / 100).toLocaleString('en-IN', {
+  const formatCurrency = (paise: number) =>
+    (paise / 100).toLocaleString('en-IN', {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 2,
     });
+
+  // Format account number into groups of 4 for readability
+  const formatAccountNumber = (num: string) =>
+    num.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
+
+  const getAccountIcon = (type: string) => {
+    switch (type?.toUpperCase()) {
+      case 'SAVINGS':
+        return 'bi-piggy-bank';
+      case 'CURRENT':
+        return 'bi-briefcase';
+      case 'FIXED_DEPOSIT':
+        return 'bi-safe';
+      default:
+        return 'bi-bank2';
+    }
   };
 
   return (
-    <div className="container py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 className="fw-bold mb-1">
-            <i className="bi bi-wallet2 text-info me-2"></i> Bank Accounts
-          </h2>
-          <p className="text-muted small mb-0">Manage your active savings, current, and deposit accounts</p>
-        </div>
-        <button className="btn btn-info font-weight-bold text-dark" onClick={() => setShowOpenModal(true)}>
-          <i className="bi bi-plus-lg me-1"></i> Open New Account
-        </button>
-      </div>
+    <div className="accounts-page">
+      <div className="accounts-container">
+        {/* Page header */}
+        <header className="accounts-hero">
+          <div className="accounts-hero__text">
+            <span className="accounts-hero__eyebrow">Banking Overview</span>
+            <h1 className="accounts-hero__title">Your Accounts</h1>
+            <p className="accounts-hero__subtitle">
+              Manage savings, current, and deposit accounts in one place
+            </p>
+          </div>
+          <button
+            className="btn btn--primary"
+            onClick={() => setShowOpenModal(true)}
+          >
+            <i className="bi bi-plus-lg"></i> Open New Account
+          </button>
+        </header>
 
-      {error && (
-        <div className="alert alert-warning shadow-sm mb-4" role="alert">
-          <i className="bi bi-exclamation-triangle-fill me-2"></i>
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-info" role="status"></div>
-          <p className="text-muted mt-2">Loading account records...</p>
-        </div>
-      ) : accounts.length === 0 ? (
-        <div className="card text-center py-5 shadow-sm border-0">
-          <div className="card-body">
-            <i className="bi bi-bank display-1 text-muted mb-3 d-block"></i>
-            <h4 className="fw-bold">No Active Accounts Found</h4>
-            <p className="text-muted">You do not have any open bank accounts registered under your profile.</p>
-            <button className="btn btn-info font-weight-bold text-dark mt-2" onClick={() => setShowOpenModal(true)}>
-              Open Your First Account
+        {/* Error */}
+        {error && (
+          <div className="alert-banner" role="alert">
+            <i className="bi bi-exclamation-triangle-fill"></i>
+            <div className="alert-banner__body">
+              <strong>Unable to load accounts</strong>
+              <span>{error}</span>
+            </div>
+            <button
+              className="btn btn--ghost btn--sm"
+              onClick={fetchAccounts}
+              type="button"
+            >
+              Retry
             </button>
           </div>
-        </div>
-      ) : (
-        <div className="row g-4">
-          {accounts.map((acc) => (
-            <div key={acc.id} className="col-md-6 col-lg-4">
-              <div className="card account-card h-100">
-                <div className="card-header-bg d-flex justify-content-between align-items-center">
-                  <span className="account-type-badge">{acc.accountType}</span>
-                  <span className={`badge ${acc.status === 'ACTIVE' ? 'bg-success' : 'bg-warning text-dark'}`}>
-                    {acc.status}
-                  </span>
-                </div>
+        )}
 
-                <div className="card-body p-4 d-flex flex-column justify-content-between">
-                  <div>
-                    <small className="text-muted d-block mb-1">ACCOUNT NUMBER</small>
-                    <div className="account-number mb-3">{acc.accountNumber}</div>
+        {/* Loading */}
+        {loading ? (
+          <div className="accounts-grid">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="account-skeleton">
+                <div className="skeleton skeleton--header" />
+                <div className="skeleton skeleton--line" />
+                <div className="skeleton skeleton--balance" />
+                <div className="skeleton skeleton--line-short" />
+              </div>
+            ))}
+          </div>
+        ) : accounts.length === 0 ? (
+          /* Empty state */
+          <div className="empty-state">
+            <div className="empty-state__icon">
+              <i className="bi bi-bank"></i>
+            </div>
+            <h3>No accounts yet</h3>
+            <p>
+              You don't have any bank accounts registered under your profile.
+              Open one to get started.
+            </p>
+            <button
+              className="btn btn--primary"
+              onClick={() => setShowOpenModal(true)}
+            >
+              <i className="bi bi-plus-lg"></i> Open Your First Account
+            </button>
+          </div>
+        ) : (
+          /* Grid */
+          <div className="accounts-grid">
+            {accounts.map((acc) => {
+              return (
+                <article
+                  key={acc.id}
+                  className="account-card"
+                  onClick={() => setSelectedAccount(acc)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedAccount(acc);
+                    }
+                  }}
+                >
+                  {/* Card top - dark "bank card" face */}
+                  <div className="account-card__face">
+                    <div className="account-card__face-top">
+                      <div className="account-card__type">
+                        <i className={`bi ${getAccountIcon(acc.accountType)}`}></i>
+                        <span>{acc.accountType}</span>
+                      </div>
+                      <span
+                        className={`status-badge status-badge--${acc.status.toLowerCase()}`}
+                      >
+                        <span className="status-badge__dot" />
+                        {acc.status}
+                      </span>
+                    </div>
 
-                    <small className="text-muted d-block mb-1">TOTAL BALANCE</small>
-                    <div className="balance-amount mb-2">{formatCurrency(acc.balance)}</div>
+                    <div className="account-card__number">
+                      {formatAccountNumber(acc.accountNumber)}
+                    </div>
 
-                    <div className="d-flex justify-content-between text-muted small">
-                      <span>Available Balance:</span>
-                      <strong className="text-dark">{formatCurrency(acc.availableBalance)}</strong>
+                    <div className="account-card__face-bottom">
+                      <span className="account-card__chip">
+                        <i className="bi bi-shield-lock-fill"></i>
+                        BankFlow Secure
+                      </span>
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-top d-flex justify-content-between">
+                  {/* Card body */}
+                  <div className="account-card__body">
+                    <div className="account-card__balance-block">
+                      <span className="account-card__label">Total Balance</span>
+                      <span className="account-card__balance">
+                        {formatCurrency(acc.balance)}
+                      </span>
+                    </div>
+
+                    <div className="account-card__available">
+                      <span>Available</span>
+                      <strong>{formatCurrency(acc.availableBalance)}</strong>
+                    </div>
+                  </div>
+
+                  {/* Card quick actions */}
+                  <div className="account-card__quick-actions">
                     <button
-                      className="btn btn-outline-info btn-sm w-100"
-                      onClick={() => setSelectedAccount(acc)}
+                      type="button"
+                      className="btn-quick btn-quick--deposit"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDepositAccount(acc);
+                      }}
                     >
-                      <i className="bi bi-sliders me-1"></i> Account Details & Limits
+                      <i className="bi bi-arrow-down-left"></i> Deposit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-quick btn-quick--withdraw"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setWithdrawAccount(acc);
+                      }}
+                    >
+                      <i className="bi bi-arrow-up-right"></i> Withdraw
                     </button>
                   </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+
+                  {/* Card footer */}
+                  <div className="account-card__footer">
+                    <button
+                      type="button"
+                      className="account-card__action"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedAccount(acc);
+                      }}
+                    >
+                      <i className="bi bi-sliders"></i>
+                      <span>Manage Limits</span>
+                      <i className="bi bi-chevron-right account-card__chevron"></i>
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {showOpenModal && (
         <OpenAccountModal
           onClose={() => setShowOpenModal(false)}
           onSuccess={() => {
             setShowOpenModal(false);
+            fetchAccounts();
+          }}
+        />
+      )}
+
+      {depositAccount && (
+        <DepositModal
+          account={depositAccount}
+          onClose={() => setDepositAccount(null)}
+          onSuccess={() => {
+            setDepositAccount(null);
+            fetchAccounts();
+          }}
+        />
+      )}
+
+      {withdrawAccount && (
+        <WithdrawalModal
+          account={withdrawAccount}
+          onClose={() => setWithdrawAccount(null)}
+          onSuccess={() => {
+            setWithdrawAccount(null);
             fetchAccounts();
           }}
         />

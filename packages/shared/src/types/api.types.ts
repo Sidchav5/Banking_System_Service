@@ -212,6 +212,46 @@ export type AmountMinor = number; // e.g., ₹100.50 → 10050 paise
 
 export type Currency = 'INR';
 
+export interface JournalEntry {
+  id: string;
+  referenceId: string;
+  description: string;
+  entryType: 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'HOLD_LOCK' | 'FEE';
+  createdAt: string;
+}
+
+export interface LedgerEntry {
+  id: string;
+  journalEntryId: string;
+  accountNumber: string;
+  entryDirection: LedgerEntryType;
+  amount: AmountMinor;
+  createdAt: string;
+}
+
+export interface PostJournalRequest {
+  referenceId?: string;
+  description: string;
+  entryType: 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'FEE';
+  entries: {
+    accountNumber: string;
+    entryDirection: LedgerEntryType;
+    amount: AmountMinor;
+  }[];
+}
+
+export interface DepositRequest {
+  accountNumber: string;
+  amount: AmountMinor; // in paise
+  description?: string;
+}
+
+export interface WithdrawRequest {
+  accountNumber: string;
+  amount: AmountMinor; // in paise
+  description?: string;
+}
+
 // ─── Service Health ──────────────────────────────────────────────────────────
 
 export interface HealthResponse {

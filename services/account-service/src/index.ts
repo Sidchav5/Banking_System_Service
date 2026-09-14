@@ -317,6 +317,113 @@ app.patch('/:id/limits', authenticateToken, async (req, res, next) => {
   }
 });
 
+/**
+ * PATCH /by-number/:accountNumber/balance
+ * Update account balance by delta (called by ledger-service).
+ */
+app.patch('/by-number/:accountNumber/balance', async (req, res, next) => {
+  try {
+    const { accountNumber } = req.params;
+    const { delta } = req.body;
+
+    if (delta === undefined || typeof delta !== 'number') {
+      res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Valid numeric delta is required' },
+        requestId: (req as unknown as { id?: string }).id ?? 'unknown',
+      });
+      return;
+    }
+
+    const now = new Date();
+
+    try {
+      await query(
+        `UPDATE accounts
+         SET balance = balance + $1,
+             available_balance = available_balance + $1,
+             updated_at = $2
+         WHERE account_number = $3`,
+        [delta, now, accountNumber]
+      );
+    } catch {
+      for (const acc of inMemoryAccounts.values()) {
+        if (acc.accountNumber === accountNumber) {
+          acc.balance += delta;
+          acc.availableBalance += delta;
+          acc.updatedAt = now.toISOString();
+        }
+      }
+    }
+
+    logger.info(`Account ${accountNumber} balance updated by ${delta}`, { accountNumber, delta });
+
+    res.json({
+      success: true,
+      data: { accountNumber, delta },
+      requestId: (req as unknown as { id?: string }).id ?? 'unknown',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /by-number/:accountNumber
+ * Fetch account details by 12-digit account number.
+ */
+app.get('/by-number/:accountNumber', async (req, res, next) => {
+  try {
+    const { accountNumber } = req.params;
+    let targetAccount: Account | null = null;
+
+    try {
+      const result = await query('SELECT * FROM accounts WHERE account_number = $1', [accountNumber]);
+      if (result.rows.length > 0) {
+        const row = result.rows[0];
+        targetAccount = {
+          id: row.id,
+          accountNumber: row.account_number,
+          userId: row.user_id,
+          accountType: row.account_type as AccountType,
+          currency: row.currency,
+          balance: parseInt(row.balance, 10),
+          availableBalance: parseInt(row.available_balance, 10),
+          status: row.status as AccountStatus,
+          dailyTransferLimit: parseInt(row.daily_transfer_limit, 10),
+          singleTransactionLimit: parseInt(row.single_transaction_limit, 10),
+          createdAt: new Date(row.created_at).toISOString(),
+          updatedAt: new Date(row.updated_at).toISOString(),
+        };
+      }
+    } catch {
+      for (const acc of inMemoryAccounts.values()) {
+        if (acc.accountNumber === accountNumber) {
+          targetAccount = acc;
+          break;
+        }
+      }
+    }
+
+    if (!targetAccount) {
+      res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'Account not found' },
+        requestId: (req as unknown as { id?: string }).id ?? 'unknown',
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: targetAccount,
+      requestId: (req as unknown as { id?: string }).id ?? 'unknown',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use(errorHandler);
 
 // ─── Start ───────────────────────────────────────────────────────────────────

@@ -1,49 +1,671 @@
-/* Navbar.css — Dedicated styles for Navbar component */
+/* =========================================================
+   Navbar — Banking UI
+   Shares design tokens with the rest of the app
+   ========================================================= */
+:root {
+  --bf-navy-900: #0a1524;
+  --bf-navy-800: #0d1b2a;
+  --bf-navy-700: #142338;
+  --bf-navy-600: #1b263b;
 
+  --bf-surface: #ffffff;
+  --bf-surface-soft: #f6f8fb;
+  --bf-border: #e5e9f0;
+  --bf-border-strong: #cfd6e2;
+
+  --bf-text: #0f172a;
+  --bf-text-muted: #64748b;
+  --bf-text-inverse: #f8fafc;
+  --bf-text-inverse-muted: rgba(248, 250, 252, 0.65);
+
+  --bf-accent: #22d3ee;
+  --bf-accent-strong: #06b6d4;
+  --bf-primary: #3b82f6;
+  --bf-danger: #ef4444;
+
+  --bf-radius-sm: 8px;
+  --bf-radius-md: 12px;
+  --bf-radius-pill: 999px;
+
+  --bf-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+  --bf-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+}
+
+/* =========================================================
+   Base bar
+   ========================================================= */
 .bankflow-navbar {
-  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
-  border-bottom: 2px solid #00b4d8;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, #091322 0%, #112239 50%, #0d1b2a 100%);
+  color: #ffffff;
+  font-family: var(--bf-font);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  position: relative;
+  z-index: 1030;
 }
 
+.bankflow-navbar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at top right,
+    rgba(56, 189, 248, 0.15),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.bankflow-navbar__inner {
+  max-width: 1240px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================================
+   Brand
+   ========================================================= */
 .bankflow-brand {
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: #ffffff !important;
-  font-size: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #ffffff;
+  flex-shrink: 0;
 }
 
-.bankflow-brand .brand-badge {
-  background-color: #00b4d8;
-  color: #0d1b2a;
-  font-size: 0.7rem;
-  padding: 2px 6px;
-  border-radius: 4px;
+.bankflow-brand:hover { color: #ffffff; }
+
+.bankflow-brand__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--bf-radius-sm);
+  background: rgba(56, 189, 248, 0.18);
+  border: 1.5px solid rgba(56, 189, 248, 0.45);
+  display: grid;
+  place-items: center;
+  color: #38bdf8;
+  font-size: 20px;
+  transition: all 200ms ease;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.bankflow-brand:hover .bankflow-brand__icon {
+  transform: scale(1.06);
+  border-color: #38bdf8;
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.45);
+}
+
+.bankflow-brand__name {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #ffffff;
+}
+
+.bankflow-brand__pill {
+  font-size: 10px;
   font-weight: 700;
-  vertical-align: super;
-  margin-left: 6px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--bf-radius-pill);
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  line-height: 1;
+}
+
+/* =========================================================
+   Nav links
+   ========================================================= */
+.bankflow-collapse {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+@media (min-width: 992px) {
+  .bankflow-collapse.collapse:not(.show) {
+    display: flex !important;
+  }
+}
+
+.bankflow-nav {
+  list-style: none;
+  margin: 0 0 0 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .bankflow-nav-link {
-  color: #e0e1dd !important;
-  font-weight: 500;
-  margin: 0 4px;
-  padding: 6px 12px !important;
-  border-radius: 6px;
-  transition: all 0.2s ease-in-out;
-}
-
-.bankflow-nav-link:hover,
-.bankflow-nav-link.active {
-  background: rgba(0, 180, 216, 0.15);
-  color: #00b4d8 !important;
-}
-
-.user-badge {
-  background: #415a77;
-  color: #ffffff;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--bf-radius-sm);
+  color: #f1f5f9;
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+  white-space: nowrap;
 }
+
+.bankflow-nav-link i {
+  font-size: 16px;
+  color: #38bdf8;
+  transition: transform 200ms ease;
+}
+
+.bankflow-nav-link:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.bankflow-nav-link:hover i {
+  transform: translateY(-1px);
+}
+
+.bankflow-nav-link.is-active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.3) 0%, rgba(3, 105, 161, 0.45) 100%);
+  border-color: #38bdf8;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35), inset 0 0 8px rgba(56, 189, 248, 0.2);
+}
+
+.bankflow-nav-link.is-active i {
+  color: #38bdf8;
+  opacity: 1;
+}
+
+.bankflow-nav-link:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   Right-side actions
+   ========================================================= */
+.bankflow-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+/* --- User chip --- */
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px 6px 6px;
+  border-radius: var(--bf-radius-pill);
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  max-width: 280px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.user-chip__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284c7, #06b6d4);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+}
+
+.user-chip__meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.user-chip__email {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.user-chip__role {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #38bdf8;
+}
+
+.user-chip__role i { font-size: 10px; }
+
+/* --- Logout --- */
+.bankflow-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: var(--bf-radius-sm);
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.bankflow-logout:hover {
+  background: rgba(239, 68, 68, 0.28);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
+}
+
+/* --- Auth buttons --- */
+.bankflow-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: var(--bf-radius-sm);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 150ms ease;
+  white-space: nowrap;
+}
+
+.bankflow-btn--ghost {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.bankflow-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+}
+
+.bankflow-btn--ghost.is-active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.bankflow-btn--primary {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: #ffffff;
+  border: 1px solid #38bdf8;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.4);
+}
+
+.bankflow-btn--primary:hover {
+  background: linear-gradient(135deg, #38bdf8, #0284c7);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+}
+
+.bankflow-btn--primary.is-active {
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.4),
+    0 4px 14px rgba(14, 165, 233, 0.5);
+}
+
+/* =========================================================
+   Mobile toggle
+   ========================================================= */
+.bankflow-toggler {
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: var(--bf-radius-sm);
+  padding: 7px 11px;
+  background: rgba(56, 189, 248, 0.1);
+  transition: all 150ms ease;
+}
+
+.bankflow-toggler:hover {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+}
+
+.bankflow-toggler:focus {
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.35);
+  outline: none;
+}
+
+/* =========================================================
+   Left Section & Control Panel Trigger Button
+   ========================================================= */
+.bankflow-navbar__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.bankflow-sidebar-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--bf-radius-sm);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.bankflow-sidebar-trigger i {
+  font-size: 16px;
+}
+
+.bankflow-sidebar-trigger:hover,
+.bankflow-sidebar-trigger.is-active {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+}
+
+/* =========================================================
+   Logged out horizontal nav container & user chip
+   ========================================================= */
+.bankflow-logged-out-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-chip--clickable {
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.user-chip--clickable:hover {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+/* =========================================================
+   Vertical Control Panel Sidebar (Left drawer)
+   ========================================================= */
+.bankflow-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 26, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 1040;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+}
+
+.bankflow-sidebar-backdrop.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bankflow-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 310px;
+  max-width: 85vw;
+  background: linear-gradient(180deg, #091322 0%, #0d1b2a 100%);
+  border-right: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.45);
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  color: #ffffff;
+}
+
+.bankflow-sidebar.is-open {
+  transform: translateX(0);
+}
+
+.bankflow-sidebar__header {
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.bankflow-sidebar__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.bankflow-sidebar__title i {
+  color: #38bdf8;
+  font-size: 18px;
+}
+
+.bankflow-sidebar__close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--bf-radius-sm);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.bankflow-sidebar__close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ffffff;
+}
+
+.bankflow-sidebar__user-card {
+  margin: 16px 20px;
+  padding: 14px 16px;
+  border-radius: var(--bf-radius-md);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
+}
+
+.sidebar-user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.sidebar-user-email {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bankflow-sidebar__section-title {
+  padding: 12px 22px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.bankflow-sidebar__nav {
+  list-style: none;
+  padding: 0 16px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bankflow-sidebar-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--bf-radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+  text-align: left;
+}
+
+.bankflow-sidebar-link i {
+  font-size: 17px;
+  color: #38bdf8;
+}
+
+.bankflow-sidebar-link:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #ffffff;
+  transform: translateX(3px);
+}
+
+.bankflow-sidebar-link.is-active {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.28) 0%, rgba(3, 105, 161, 0.4) 100%);
+  border-color: #38bdf8;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+.sidebar-active-arrow {
+  font-size: 13px !important;
+  color: #38bdf8 !important;
+}
+
+.bankflow-sidebar__footer {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 15, 26, 0.5);
+}
+
+.bankflow-sidebar-logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 16px;
+  border-radius: var(--bf-radius-sm);
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.bankflow-sidebar-logout:hover {
+  background: rgba(239, 68, 68, 0.28);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 991.98px) {
+  .bankflow-navbar__inner {
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .bankflow-brand__pill { display: none; }
+  .bankflow-brand__name { font-size: 16px; }
+  .bankflow-brand__icon { width: 36px; height: 36px; font-size: 17px; }
+}
+

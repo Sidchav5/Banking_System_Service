@@ -12,19 +12,27 @@ interface AccountDetailsModalProps {
   onUpdate: () => void;
 }
 
-export const AccountDetailsModal: React.FC<AccountDetailsModalProps> = ({ account, onClose, onUpdate }) => {
+export const AccountDetailsModal: React.FC<AccountDetailsModalProps> = ({
+  account,
+  onClose,
+  onUpdate,
+}) => {
   const { accessToken } = useAuth();
-  const [dailyLimitRupees, setDailyLimitRupees] = useState((account.dailyTransferLimit / 100).toString());
-  const [singleLimitRupees, setSingleLimitRupees] = useState((account.singleTransactionLimit / 100).toString());
+  const [dailyLimitRupees, setDailyLimitRupees] = useState(
+    (account.dailyTransferLimit / 100).toString()
+  );
+  const [singleLimitRupees, setSingleLimitRupees] = useState(
+    (account.singleTransactionLimit / 100).toString()
+  );
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  const formatCurrency = (paise: number) => {
-    return (paise / 100).toLocaleString('en-IN', {
+  const formatCurrency = (paise: number) =>
+    (paise / 100).toLocaleString('en-IN', {
       style: 'currency',
       currency: 'INR',
+      maximumFractionDigits: 2,
     });
-  };
 
   const handleUpdateLimits = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,110 +71,194 @@ export const AccountDetailsModal: React.FC<AccountDetailsModalProps> = ({ accoun
     }
   };
 
-  return (
-    <div className="details-modal-backdrop">
-      <div className="card details-card">
-        <div className="details-header d-flex justify-content-between align-items-center">
-          <div>
-            <h5 className="mb-0 font-weight-bold">Account Telemetry & Controls</h5>
-            <small className="text-info font-monospace">{account.accountNumber}</small>
-          </div>
-          <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
-        </div>
+  const isActive = account.status === 'ACTIVE';
+  const isClosed = account.status === 'CLOSED';
 
-        <div className="card-body p-4">
+  return (
+    <div className="details-modal-backdrop" onClick={onClose}>
+      <div
+        className="details-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="account-details-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <header className="details-header">
+          <div className="details-header__left">
+            <div className="details-header__icon">
+              <i className="bi bi-bank2"></i>
+            </div>
+            <div>
+              <h2 id="account-details-title" className="details-header__title">
+                Account Details
+              </h2>
+              <div className="details-header__meta">
+                <span className="details-header__acct">{account.accountNumber}</span>
+                <span
+                  className={`status-badge status-badge--${account.status.toLowerCase()}`}
+                >
+                  <span className="status-badge__dot" />
+                  {account.status}
+                </span>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="details-close"
+            aria-label="Close"
+            onClick={onClose}
+          >
+            <i className="bi bi-x-lg"></i>
+          </button>
+        </header>
+
+        {/* Body */}
+        <div className="details-body">
           {statusMessage && (
-            <div className="alert alert-info py-2 mb-3" role="alert">
-              <i className="bi bi-info-circle me-1"></i> {statusMessage}
+            <div className="details-alert" role="alert">
+              <i className="bi bi-info-circle-fill"></i>
+              <span>{statusMessage}</span>
             </div>
           )}
 
-          <div className="row g-3 mb-4">
-            <div className="col-6">
-              <div className="p-3 bg-light rounded">
-                <small className="text-muted d-block mb-1">TOTAL BALANCE</small>
-                <h4 className="fw-bold mb-0 text-dark">{formatCurrency(account.balance)}</h4>
+          {/* Balances */}
+          <section className="balance-grid">
+            <div className="balance-tile balance-tile--primary">
+              <div className="balance-tile__head">
+                <i className="bi bi-wallet2"></i>
+                <span>Total Balance</span>
+              </div>
+              <div className="balance-tile__value">
+                {formatCurrency(account.balance)}
               </div>
             </div>
 
-            <div className="col-6">
-              <div className="p-3 bg-light rounded">
-                <small className="text-muted d-block mb-1">AVAILABLE BALANCE</small>
-                <h4 className="fw-bold mb-0 text-info">{formatCurrency(account.availableBalance)}</h4>
+            <div className="balance-tile balance-tile--accent">
+              <div className="balance-tile__head">
+                <i className="bi bi-lightning-charge-fill"></i>
+                <span>Available</span>
+              </div>
+              <div className="balance-tile__value">
+                {formatCurrency(account.availableBalance)}
               </div>
             </div>
-          </div>
+          </section>
 
-          <h6 className="fw-bold border-bottom pb-2 mb-3">
-            <i className="bi bi-shield-check me-2 text-primary"></i> Transaction Safety Limits
-          </h6>
-
-          <form onSubmit={handleUpdateLimits} className="mb-4">
-            <div className="row g-3 mb-3">
-              <div className="col-md-6">
-                <label className="form-label text-muted small fw-bold">DAILY TRANSFER LIMIT (₹)</label>
-
-                <input
-                  type="number"
-                  className="form-control"
-                  value={dailyLimitRupees}
-                  onChange={(e) => setDailyLimitRupees(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label text-muted small fw-bold">SINGLE TRANSACTION LIMIT (₹)</label>
-
-                <input
-                  type="number"
-                  className="form-control"
-                  value={singleLimitRupees}
-                  onChange={(e) => setSingleLimitRupees(e.target.value)}
-                  required
-                />
-              </div>
+          {/* Transaction Limits */}
+          <section className="details-section">
+            <div className="section-heading">
+              <i className="bi bi-shield-check"></i>
+              <h3>Transaction Safety Limits</h3>
             </div>
-            <button type="submit" className="btn btn-outline-info btn-sm" disabled={loading}>
-              Save Limit Changes
-            </button>
-          </form>
 
-          <h6 className="fw-bold border-bottom pb-2 mb-3">
-            <i className="bi bi-gear-fill me-2 text-warning"></i> Account Actions
-          </h6>
+            <form onSubmit={handleUpdateLimits} className="limits-form">
+              <div className="limits-grid">
+                <div className="field">
+                  <label htmlFor="daily-limit">Daily Transfer Limit</label>
+                  <div className="input-affix">
+                    <span className="input-affix__prefix">₹</span>
+                    <input
+                      id="daily-limit"
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      value={dailyLimitRupees}
+                      onChange={(e) => setDailyLimitRupees(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <small className="field__hint">Max you can send per day</small>
+                </div>
 
-          <div className="d-flex gap-2">
-            {account.status === 'ACTIVE' ? (
-              <button
-                type="button"
-                className="btn btn-warning btn-sm"
-                onClick={() => handleToggleStatus('FROZEN')}
-                disabled={loading}
-              >
-                <i className="bi bi-snow me-1"></i> Freeze Account
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-success btn-sm"
-                onClick={() => handleToggleStatus('ACTIVE')}
-                disabled={loading}
-              >
-                <i className="bi bi-play-circle me-1"></i> Unfreeze Account
-              </button>
-            )}
+                <div className="field">
+                  <label htmlFor="single-limit">Single Transaction Limit</label>
+                  <div className="input-affix">
+                    <span className="input-affix__prefix">₹</span>
+                    <input
+                      id="single-limit"
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      value={singleLimitRupees}
+                      onChange={(e) => setSingleLimitRupees(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <small className="field__hint">Max per individual transfer</small>
+                </div>
+              </div>
 
-            {account.status !== 'CLOSED' && (
-              <button
-                type="button"
-                className="btn btn-outline-danger btn-sm"
-                onClick={() => handleToggleStatus('CLOSED')}
-                disabled={loading}
-              >
-                <i className="bi bi-x-circle me-1"></i> Close Account
-              </button>
-            )}
-          </div>
+              <div className="form-actions">
+                <button
+                  type="submit"
+                  className="btn btn--primary"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <span className="spinner" /> Saving…
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check2-circle"></i> Save Changes
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </section>
+
+          {/* Account Actions */}
+          <section className="details-section">
+            <div className="section-heading">
+              <i className="bi bi-sliders2"></i>
+              <h3>Account Controls</h3>
+            </div>
+
+            <div className="action-row">
+              {isActive ? (
+                <button
+                  type="button"
+                  className="btn btn--warn"
+                  onClick={() => handleToggleStatus('FROZEN')}
+                  disabled={loading}
+                >
+                  <i className="bi bi-snow2"></i> Freeze Account
+                </button>
+              ) : (
+                !isClosed && (
+                  <button
+                    type="button"
+                    className="btn btn--success"
+                    onClick={() => handleToggleStatus('ACTIVE')}
+                    disabled={loading}
+                  >
+                    <i className="bi bi-play-circle-fill"></i> Unfreeze Account
+                  </button>
+                )
+              )}
+
+              {!isClosed && (
+                <button
+                  type="button"
+                  className="btn btn--danger-ghost"
+                  onClick={() => handleToggleStatus('CLOSED')}
+                  disabled={loading}
+                >
+                  <i className="bi bi-x-octagon"></i> Close Account
+                </button>
+              )}
+
+              {isClosed && (
+                <div className="closed-note">
+                  <i className="bi bi-lock-fill"></i>
+                  This account is permanently closed.
+                </div>
+              )}
+            </div>
+          </section>
         </div>
       </div>
     </div>
