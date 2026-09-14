@@ -10,11 +10,13 @@
     "simulators/*"
   ],
   "scripts": {
-    "dev": "concurrently -n \"GATEWAY,AUTH,USER,ACCOUNT,FRONTEND\" -c \"blue,green,magenta,yellow,cyan\" \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:user\" \"npm run dev:account\" \"npm run dev:frontend\"",
+    "dev": "concurrently -n \"GATEWAY,AUTH,USER,ACCOUNT,LEDGER,TRANS,FRONTEND\" -c \"blue,green,magenta,yellow,red,cyan,gray\" \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:user\" \"npm run dev:account\" \"npm run dev:ledger\" \"npm run dev:transaction\" \"npm run dev:frontend\"",
     "dev:gateway": "npm run dev --workspace=@bankflow/api-gateway",
     "dev:auth": "npm run dev --workspace=@bankflow/auth-service",
     "dev:user": "npm run dev --workspace=@bankflow/user-service",
     "dev:account": "npm run dev --workspace=@bankflow/account-service",
+    "dev:ledger": "npm run dev --workspace=@bankflow/ledger-service",
+    "dev:transaction": "npm run dev --workspace=@bankflow/transaction-service",
     "dev:frontend": "npm run dev --workspace=@bankflow/frontend",
     "infra:up": "docker-compose up -d",
     "infra:down": "docker-compose down",

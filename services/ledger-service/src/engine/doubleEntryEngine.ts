@@ -140,7 +140,7 @@ async function syncAccountBalances(
 
     try {
       await axios.patch(
-        `http://localhost:3003/api/v1/accounts/by-number/${entry.accountNumber}/balance`,
+        `${config.accountServiceUrl}/by-number/${entry.accountNumber}/balance`,
         { delta }
       );
     } catch (err: any) {
