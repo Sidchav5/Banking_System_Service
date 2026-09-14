@@ -1,4 +1,4 @@
-import { pool, query } from '../db';
+import { query } from '../db';
 import { config } from '../config';
 import {
   AppError,
@@ -6,7 +6,6 @@ import {
   Transaction,
   TransferRequest,
   Account,
-  AmountMinor,
 } from '@bankflow/shared';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';

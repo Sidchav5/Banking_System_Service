@@ -12,10 +12,8 @@ import {
   AppError,
   Errors,
   authenticateToken,
-  Transaction,
 } from '@bankflow/shared';
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
 
 const SERVICE_NAME = 'transaction-service';
 const PORT = config.port;
@@ -95,6 +93,7 @@ app.post(
 app.get('/', authenticateToken, async (req, res, next) => {
   try {
     const userId = req.user!.sub;
+    logger.debug(`Fetching transactions for user ${userId}`);
 
     // 1. Get user's accounts to filter relevant transactions
     let userAccountNumbers: string[] = [];
