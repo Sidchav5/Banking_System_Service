@@ -1,0 +1,466 @@
+/* =========================================================
+   Footer — BankFlow Enterprise
+   Shares design tokens with the rest of the app
+   ========================================================= */
+:root {
+  --bf-navy-900: #0a1524;
+  --bf-navy-800: #0d1b2a;
+  --bf-navy-700: #142338;
+  --bf-navy-600: #1b263b;
+
+  --bf-surface: #ffffff;
+  --bf-surface-soft: #f6f8fb;
+  --bf-bg: #f4f6fa;
+  --bf-border: #e5e9f0;
+  --bf-border-strong: #cfd6e2;
+
+  --bf-text: #0f172a;
+  --bf-text-muted: #64748b;
+  --bf-text-inverse: #f8fafc;
+
+  --bf-accent: #22d3ee;
+  --bf-accent-strong: #06b6d4;
+  --bf-primary: #3b82f6;
+  --bf-success: #10b981;
+  --bf-warn: #f59e0b;
+  --bf-danger: #ef4444;
+  --bf-purple: #8b5cf6;
+
+  --bf-radius-sm: 8px;
+  --bf-radius-md: 12px;
+  --bf-radius-pill: 999px;
+
+  --bf-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+  --bf-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+
+  /* Footer-specific surfaces (dark theme locally) */
+  --ft-bg-top: #0f172a;
+  --ft-bg-bottom: #090d16;
+  --ft-text: #94a3b8;
+  --ft-text-strong: #cbd5e1;
+  --ft-text-heading: #f8fafc;
+  --ft-border: rgba(255, 255, 255, 0.08);
+  --ft-border-strong: rgba(255, 255, 255, 0.14);
+  --ft-surface: rgba(255, 255, 255, 0.05);
+}
+
+/* =========================================================
+   Base
+   ========================================================= */
+.bankflow-footer {
+  position: relative;
+  margin-top: auto;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--ft-bg-top) 0%, var(--ft-bg-bottom) 100%);
+  color: var(--ft-text);
+  font-family: var(--bf-font);
+  border-top: 1px solid var(--ft-border);
+}
+
+/* Gradient accent bar on top — uses app-wide semantic palette */
+.footer-top-accent {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--bf-primary) 0%,
+    var(--bf-accent-strong) 33%,
+    var(--bf-success) 66%,
+    var(--bf-purple) 100%
+  );
+}
+
+/* Subtle radial glow behind the footer, matching the hero treatment */
+.bankflow-footer::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(
+    circle,
+    rgba(34, 211, 238, 0.06),
+    transparent 65%
+  );
+  pointer-events: none;
+}
+
+.footer-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 56px 24px 28px;
+}
+
+/* =========================================================
+   Grid layout
+   ========================================================= */
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1.4fr 1.3fr;
+  gap: 44px;
+}
+
+@media (max-width: 1080px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+/* =========================================================
+   Brand column
+   ========================================================= */
+.footer-brand-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: opacity 150ms ease;
+  width: fit-content;
+}
+
+.footer-brand:hover { opacity: 0.9; }
+
+.footer-brand__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--bf-radius-sm);
+  background: rgba(34, 211, 238, 0.14);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  color: var(--bf-accent);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  transition: transform 200ms ease;
+}
+
+.footer-brand:hover .footer-brand__icon {
+  transform: scale(1.05);
+}
+
+.footer-brand__name {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ft-text-heading);
+  letter-spacing: -0.4px;
+}
+
+.footer-brand__accent { color: var(--bf-accent); }
+
+.footer-description {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ft-text);
+  margin: 0 0 18px;
+  max-width: 380px;
+}
+
+/* Security badges */
+.footer-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: var(--bf-radius-pill);
+  background: var(--ft-surface);
+  border: 1px solid var(--ft-border);
+  color: var(--ft-text-strong);
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.badge-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--ft-border-strong);
+}
+
+.badge-item i {
+  color: var(--bf-accent);
+  font-size: 11px;
+}
+
+/* =========================================================
+   Link columns
+   ========================================================= */
+.footer-links-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-heading {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ft-text-heading);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin: 0 0 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ft-border);
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-links button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ft-text);
+  text-align: left;
+  cursor: pointer;
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.footer-links button i {
+  font-size: 10px;
+  color: #475569;
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.footer-links button:hover {
+  color: var(--bf-accent);
+  transform: translateX(2px);
+}
+
+.footer-links button:hover i {
+  color: var(--bf-accent);
+  transform: translateX(2px);
+}
+
+.footer-links button:focus-visible {
+  outline: 2px solid var(--bf-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Microservices mono list */
+.footer-links--mono li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+  padding: 4px 0;
+}
+
+.svc-tag {
+  font-weight: 500;
+  color: var(--ft-text-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.svc-port {
+  flex-shrink: 0;
+  font-family: var(--bf-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--bf-accent);
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.22);
+  padding: 2px 7px;
+  border-radius: var(--bf-radius-sm);
+}
+
+/* Governance items */
+.gov-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--ft-text);
+  line-height: 1.4;
+}
+
+.gov-item i {
+  color: var(--bf-success);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   Divider
+   ========================================================= */
+.footer-divider {
+  height: 1px;
+  background: var(--ft-border);
+  margin: 40px 0 24px;
+}
+
+/* =========================================================
+   Bottom bar
+   ========================================================= */
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+}
+
+.footer-bottom__left { flex: 1 1 auto; min-width: 0; }
+.footer-bottom__status { flex: 0 0 auto; }
+.footer-bottom__right { flex: 0 0 auto; }
+
+.copyright-text {
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.copyright-text strong {
+  color: var(--ft-text-strong);
+  font-weight: 600;
+}
+
+/* Status pill */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--bf-radius-pill);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 150ms ease, border-color 150ms ease,
+    transform 150ms ease;
+}
+
+.status-pill:hover {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+.status-pill:focus-visible {
+  outline: 2px solid var(--bf-success);
+  outline-offset: 3px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bf-success);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.status-dot--active {
+  animation: ft-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ft-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.05);
+  }
+}
+
+.status-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #34d399;
+  white-space: nowrap;
+}
+
+/* Legal links */
+.footer-bottom__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legal-link {
+  color: #64748b;
+  cursor: pointer;
+  transition: color 150ms ease;
+  font-weight: 500;
+}
+
+.legal-link:hover { color: var(--ft-text-strong); }
+
+.legal-dot {
+  color: #334155;
+  font-size: 10px;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 900px) {
+  .footer-container { padding: 44px 20px 24px; }
+}
+
+@media (max-width: 768px) {
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .footer-bottom__left,
+  .footer-bottom__status,
+  .footer-bottom__right {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .footer-bottom__status { display: flex; justify-content: flex-start; }
+  .status-pill { width: fit-content; }
+}
+
+@media (max-width: 480px) {
+  .footer-container { padding: 36px 16px 20px; }
+  .footer-brand__name { font-size: 18px; }
+  .badge-item { font-size: 10px; padding: 4px 9px; }
+  .footer-heading { font-size: 10.5px; margin-bottom: 14px; }
+  .footer-links button { font-size: 12.5px; }
+  .footer-links--mono li { font-size: 12px; }
+  .status-text { font-size: 11.5px; }
+}

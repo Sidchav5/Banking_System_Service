@@ -78,8 +78,8 @@ export const LedgerJournalView: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, selectedAccountNumber]);
 
-  const formatCurrency = (paise: number) =>
-    (paise / 100).toLocaleString('en-IN', {
+  const formatCurrency = (paise: number | string) =>
+    (Number(paise) / 100).toLocaleString('en-IN', {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 2,
@@ -100,11 +100,11 @@ export const LedgerJournalView: React.FC = () => {
   // Derived summary
   const totalCredits = ledgerItems
     .filter((i) => i.entryDirection === 'CREDIT')
-    .reduce((sum, i) => sum + i.amount, 0);
+    .reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
   const totalDebits = ledgerItems
     .filter((i) => i.entryDirection === 'DEBIT')
-    .reduce((sum, i) => sum + i.amount, 0);
+    .reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
   const netFlow = totalCredits - totalDebits;
 

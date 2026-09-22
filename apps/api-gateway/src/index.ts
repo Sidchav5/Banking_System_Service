@@ -93,6 +93,10 @@ app.use(
       'X-Request-ID',
       'X-Correlation-ID',
       'Idempotency-Key',
+      'X-Idempotency-Key',
+      'x-idempotency-key',
+      'X-Simulate-Failure',
+      'x-simulate-failure',
     ],
     exposedHeaders: ['X-Request-ID', 'X-Correlation-ID', 'X-RateLimit-Remaining'],
   }),
@@ -114,8 +118,8 @@ app.use(
 );
 
 // ─── Body Parsers ────────────────────────────────────────────────────────────
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+// Note: Global express.json() is omitted in the API Gateway so that http-proxy-middleware
+// can stream raw HTTP request bodies directly to downstream microservices without stream exhaustion.
 
 // ─── Rate Limiting ───────────────────────────────────────────────────────────
 app.use(globalLimiter);

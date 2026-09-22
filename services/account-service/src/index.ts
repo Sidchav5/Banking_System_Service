@@ -7,6 +7,8 @@ import {
   correlationIdMiddleware,
   errorHandler,
   authenticateToken,
+  requireRole,
+  AppError,
   Account,
   OpenAccountRequest,
   UpdateLimitsRequest,
@@ -238,49 +240,58 @@ app.get('/:id', authenticateToken, async (req, res, next) => {
  * PATCH /:id/status
  * Update account status (FREEZE, UNFREEZE, BLOCK, CLOSE).
  */
-app.patch('/:id/status', authenticateToken, async (req, res, next) => {
-  try {
-    const accountId = req.params.id;
-    const { status, reason } = req.body as AccountStatusUpdateRequest;
+app.patch(
+  '/:id/status',
+  authenticateToken,
+  requireRole('ADMIN', 'EMPLOYEE'),
+  async (req, res, next) => {
+    try {
+      const accountId = req.params.id;
+      const { status, reason } = req.body as AccountStatusUpdateRequest;
 
-    if (!['ACTIVE', 'FROZEN', 'BLOCKED', 'CLOSED'].includes(status)) {
-      res.status(400).json({
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid status value' },
+      if (!['ACTIVE', 'FROZEN', 'BLOCKED', 'CLOSED'].includes(status)) {
+        res.status(400).json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: 'Invalid status value' },
+          requestId: (req as unknown as { id?: string }).id ?? 'unknown',
+        });
+        return;
+      }
+
+      const now = new Date();
+
+      try {
+        await query('UPDATE accounts SET status = $1, updated_at = $2 WHERE id = $3', [status, now, accountId]);
+      } catch {
+        const acc = inMemoryAccounts.get(accountId);
+        if (acc) {
+          acc.status = status;
+          acc.updatedAt = now.toISOString();
+        }
+      }
+
+      logger.info(`Account ${accountId} status updated to ${status}`, { reason, updatedBy: req.user!.sub });
+
+      res.json({
+        success: true,
+        data: { accountId, status, updatedBy: req.user!.sub },
         requestId: (req as unknown as { id?: string }).id ?? 'unknown',
       });
-      return;
+    } catch (err) {
+      next(err);
     }
-
-    const now = new Date();
-
-    try {
-      await query('UPDATE accounts SET status = $1, updated_at = $2 WHERE id = $3', [status, now, accountId]);
-    } catch {
-      const acc = inMemoryAccounts.get(accountId);
-      if (acc) {
-        acc.status = status;
-        acc.updatedAt = now.toISOString();
-      }
-    }
-
-    logger.info(`Account ${accountId} status updated to ${status}`, { reason, updatedBy: req.user!.sub });
-
-    res.json({
-      success: true,
-      data: { accountId, status, updatedBy: req.user!.sub },
-      requestId: (req as unknown as { id?: string }).id ?? 'unknown',
-    });
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 /**
  * PATCH /:id/limits
  * Update account transaction limits.
  */
-app.patch('/:id/limits', authenticateToken, async (req, res, next) => {
+app.patch(
+  '/:id/limits',
+  authenticateToken,
+  requireRole('ADMIN'),
+  async (req, res, next) => {
   try {
     const accountId = req.params.id;
     const { dailyTransferLimit, singleTransactionLimit } = req.body as UpdateLimitsRequest;
@@ -338,17 +349,27 @@ app.patch('/by-number/:accountNumber/balance', async (req, res, next) => {
     const now = new Date();
 
     try {
-      await query(
+      const result = await query(
         `UPDATE accounts
          SET balance = balance + $1,
              available_balance = available_balance + $1,
              updated_at = $2
-         WHERE account_number = $3`,
+         WHERE account_number = $3
+         ${delta < 0 ? 'AND available_balance + $1 >= 0' : ''}
+         RETURNING balance, available_balance`,
         [delta, now, accountNumber]
       );
-    } catch {
+
+      if (delta < 0 && result.rowCount === 0) {
+        throw new AppError('Insufficient available balance for transaction', 400, 'INSUFFICIENT_FUNDS');
+      }
+    } catch (err: any) {
+      if (err instanceof AppError) throw err;
       for (const acc of inMemoryAccounts.values()) {
         if (acc.accountNumber === accountNumber) {
+          if (delta < 0 && acc.availableBalance + delta < 0) {
+            throw new AppError('Insufficient available balance for transaction', 400, 'INSUFFICIENT_FUNDS');
+          }
           acc.balance += delta;
           acc.availableBalance += delta;
           acc.updatedAt = now.toISOString();

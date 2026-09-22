@@ -1,0 +1,1282 @@
+/* =========================================================
+   InterBankTransfer — Banking UI (light theme)
+   Saga payment flow with state machine visualization
+   Shares design tokens with the rest of the app
+   ========================================================= */
+:root {
+  --bf-navy-900: #0a1524;
+  --bf-navy-800: #0d1b2a;
+  --bf-navy-700: #142338;
+  --bf-navy-600: #1b263b;
+
+  --bf-surface: #ffffff;
+  --bf-surface-soft: #f6f8fb;
+  --bf-bg: #f4f6fa;
+  --bf-border: #e5e9f0;
+  --bf-border-strong: #cfd6e2;
+
+  --bf-text: #0f172a;
+  --bf-text-muted: #64748b;
+  --bf-text-inverse: #f8fafc;
+
+  --bf-accent: #22d3ee;
+  --bf-accent-strong: #06b6d4;
+  --bf-primary: #3b82f6;
+  --bf-success: #10b981;
+  --bf-success-strong: #059669;
+  --bf-warn: #f59e0b;
+  --bf-danger: #ef4444;
+  --bf-purple: #8b5cf6;
+  --bf-indigo: #6366f1;
+
+  --bf-radius-sm: 8px;
+  --bf-radius-md: 12px;
+  --bf-radius-lg: 16px;
+  --bf-radius-xl: 20px;
+  --bf-radius-pill: 999px;
+
+  --bf-shadow-sm: 0 1px 2px rgba(10, 21, 36, 0.05);
+  --bf-shadow-md: 0 8px 24px rgba(10, 21, 36, 0.08);
+  --bf-shadow-lg: 0 20px 40px rgba(10, 21, 36, 0.14);
+
+  --bf-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+  --bf-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+}
+
+/* =========================================================
+   Page
+   ========================================================= */
+.interbank-page {
+  min-height: 100vh;
+  background: var(--bf-bg);
+  font-family: var(--bf-font);
+  color: var(--bf-text);
+  padding: 32px 20px 60px;
+}
+
+.interbank-container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   Hero
+   ========================================================= */
+.interbank-hero {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 26px 28px;
+  border-radius: var(--bf-radius-xl);
+  background: linear-gradient(135deg, var(--bf-navy-900) 0%, var(--bf-navy-600) 100%);
+  color: var(--bf-text-inverse);
+  margin-bottom: 22px;
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+
+.interbank-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at top right,
+    rgba(99, 102, 241, 0.22),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.interbank-hero__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.interbank-hero__icon {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--bf-radius-md);
+  background: rgba(99, 102, 241, 0.16);
+  border: 1px solid rgba(99, 102, 241, 0.42);
+  display: grid;
+  place-items: center;
+  color: #a5b4fc;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.interbank-hero__eyebrow {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #a5b4fc;
+  margin-bottom: 4px;
+}
+
+.interbank-hero__title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  margin: 0 0 4px;
+  color: #f8fafc;
+}
+
+.interbank-hero__subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(248, 250, 252, 0.68);
+  line-height: 1.5;
+  max-width: 640px;
+}
+
+.interbank-hero__badges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.interbank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--bf-radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.interbank-badge i { font-size: 11px; }
+
+.interbank-badge--saga {
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.14);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.interbank-badge--secure {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* =========================================================
+   Tabs
+   ========================================================= */
+.interbank-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  padding: 6px;
+  background: var(--bf-surface);
+  border: 1px solid var(--bf-border);
+  border-radius: var(--bf-radius-md);
+  box-shadow: var(--bf-shadow-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.interbank-tabs::-webkit-scrollbar { display: none; }
+
+.interbank-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--bf-radius-sm);
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bf-text-muted);
+  cursor: pointer;
+  transition: all 150ms ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.interbank-tab i { font-size: 14px; }
+
+.interbank-tab:hover {
+  color: var(--bf-text);
+  background: var(--bf-surface-soft);
+}
+
+.interbank-tab.is-active {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--bf-indigo), var(--bf-purple));
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.interbank-tab.is-active:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--bf-indigo), var(--bf-purple));
+}
+
+.interbank-tab__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--bf-radius-pill);
+  background: rgba(255, 255, 255, 0.25);
+  color: inherit;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   Content grid
+   ========================================================= */
+.interbank-content {
+  animation: bf-fade-in 220ms ease-out;
+}
+
+@keyframes bf-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.interbank-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .interbank-grid { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
+   Panels
+   ========================================================= */
+.interbank-panel {
+  background: var(--bf-surface);
+  border: 1px solid var(--bf-border);
+  border-radius: var(--bf-radius-lg);
+  padding: 24px;
+  box-shadow: var(--bf-shadow-sm);
+}
+
+.interbank-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--bf-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--bf-border);
+}
+
+.interbank-panel__title i {
+  color: var(--bf-indigo);
+  font-size: 14px;
+}
+
+/* =========================================================
+   Form
+   ========================================================= */
+.interbank-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--bf-text);
+  letter-spacing: 0.1px;
+}
+
+.field__optional {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--bf-text-muted);
+  margin-left: 6px;
+  padding: 2px 7px;
+  background: var(--bf-surface-soft);
+  border: 1px solid var(--bf-border);
+  border-radius: var(--bf-radius-pill);
+}
+
+.field__hint {
+  display: block;
+  font-size: 11.5px;
+  color: var(--bf-text-muted);
+  font-family: var(--bf-font-mono);
+  margin-top: 4px;
+  letter-spacing: 0.2px;
+}
+
+/* Select styled like input-affix */
+.input-affix__select {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--bf-text);
+  background: var(--bf-surface);
+  border: 1.5px solid var(--bf-border-strong);
+  border-radius: var(--bf-radius-sm);
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1.5 4.5 3 3l3 3 3-3 1.5 1.5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 38px;
+}
+
+.input-affix__select:focus {
+  outline: none;
+  border-color: var(--bf-indigo);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Shared input-affix */
+.input-affix {
+  display: flex;
+  align-items: center;
+  background: var(--bf-surface);
+  border: 1.5px solid var(--bf-border-strong);
+  border-radius: var(--bf-radius-sm);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.input-affix:focus-within {
+  border-color: var(--bf-indigo);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.input-affix__icon,
+.input-affix__prefix,
+.input-affix__suffix {
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+  align-self: stretch;
+  background: var(--bf-surface-soft);
+  color: var(--bf-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.input-affix__icon,
+.input-affix__prefix { border-right: 1px solid var(--bf-border); }
+
+.input-affix__prefix { font-size: 15px; }
+
+.input-affix__suffix {
+  border-left: 1px solid var(--bf-border);
+  font-size: 10.5px;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.input-affix:focus-within .input-affix__icon,
+.input-affix:focus-within .input-affix__prefix {
+  color: var(--bf-indigo);
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.input-affix input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--bf-text);
+  background: transparent;
+  min-width: 0;
+  width: 100%;
+}
+
+.input-affix input::placeholder { color: #9aa4b2; }
+
+.input-affix input.input-affix__mono {
+  font-family: var(--bf-font-mono);
+  font-size: 13px;
+  letter-spacing: 0.3px;
+}
+
+/* Balance chip */
+.interbank-balance-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  border-radius: var(--bf-radius-sm);
+  padding: 5px 10px;
+  width: fit-content;
+  font-weight: 500;
+}
+
+.interbank-balance-chip i { color: var(--bf-success); font-size: 12px; }
+.interbank-balance-chip strong { font-weight: 700; }
+
+/* Preset chips */
+.interbank-presets {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.interbank-preset-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--bf-text-muted);
+  background: var(--bf-surface-soft);
+  border: 1px solid var(--bf-border);
+  border-radius: var(--bf-radius-pill);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.interbank-preset-btn:hover {
+  color: var(--bf-indigo);
+  border-color: var(--bf-indigo);
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.interbank-preset-btn.is-active {
+  color: var(--bf-indigo);
+  border-color: var(--bf-indigo);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+/* =========================================================
+   Failure simulation box
+   ========================================================= */
+.interbank-failure-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--bf-radius-md);
+  padding: 14px;
+}
+
+.interbank-failure-box__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #b91c1c;
+  margin-bottom: 12px;
+}
+
+.interbank-failure-box__head i { font-size: 13px; }
+
+.interbank-dev-badge {
+  display: inline-flex;
+  padding: 2px 7px;
+  border-radius: var(--bf-radius-pill);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #ffffff;
+  background: var(--bf-danger);
+  margin-left: auto;
+}
+
+.interbank-failure-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.interbank-failure-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--bf-radius-sm);
+  border: 1px solid var(--bf-border);
+  background: var(--bf-surface);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.interbank-failure-option input { display: none; }
+
+.interbank-failure-option:hover {
+  border-color: var(--bf-border-strong);
+}
+
+.interbank-failure-option.is-selected {
+  border-color: var(--bf-danger);
+  background: rgba(239, 68, 68, 0.06);
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.12);
+}
+
+.interbank-failure-option__radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--bf-border-strong);
+  background: var(--bf-surface);
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative;
+  transition: all 150ms ease;
+}
+
+.interbank-failure-option.is-selected .interbank-failure-option__radio {
+  border-color: var(--bf-danger);
+}
+
+.interbank-failure-option.is-selected .interbank-failure-option__radio::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--bf-danger);
+}
+
+.interbank-failure-option__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.interbank-failure-option__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bf-text);
+}
+
+.interbank-failure-option__desc {
+  font-size: 11.5px;
+  color: var(--bf-text-muted);
+  line-height: 1.4;
+}
+
+/* =========================================================
+   Buttons / error / spinner
+   ========================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--bf-radius-sm);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 150ms ease;
+  white-space: nowrap;
+}
+
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn--block-md { width: 100%; margin-top: 4px; }
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--bf-indigo), var(--bf-purple));
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.32);
+}
+
+.btn--primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.45);
+}
+
+.interbank-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--bf-radius-sm);
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.interbank-error i { font-size: 15px; flex-shrink: 0; }
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: bf-spin 0.6s linear infinite;
+}
+
+.spinner--dark {
+  border-color: rgba(99, 102, 241, 0.25);
+  border-top-color: var(--bf-indigo);
+}
+
+.spinner--xs { width: 12px; height: 12px; border-width: 1.5px; }
+
+@keyframes bf-spin { to { transform: rotate(360deg); } }
+
+/* =========================================================
+   Tracker empty preview
+   ========================================================= */
+.interbank-tracker-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 8px;
+  text-align: center;
+  color: var(--bf-text-muted);
+}
+
+.interbank-tracker-empty__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+  border: 1px solid #ddd6fe;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  color: var(--bf-indigo);
+  margin-bottom: 18px;
+}
+
+.interbank-tracker-empty p {
+  margin: 0 0 24px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+.interbank-tracker-preview {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  opacity: 0.55;
+}
+
+/* =========================================================
+   Payment card
+   ========================================================= */
+.interbank-payment-card {
+  position: relative;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border: 1px solid #ddd6fe;
+  border-radius: var(--bf-radius-md);
+  margin-bottom: 20px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.interbank-payment-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.18), transparent 65%);
+  pointer-events: none;
+}
+
+.interbank-payment-card__number {
+  font-family: var(--bf-font-mono);
+  font-size: 11px;
+  color: var(--bf-indigo);
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
+  font-weight: 600;
+}
+
+.interbank-payment-card__amount {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--bf-text);
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.interbank-payment-card__route {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #4c1d95;
+  font-family: var(--bf-font-mono);
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.interbank-payment-card__route strong { font-weight: 700; }
+.interbank-payment-card__route i {
+  color: var(--bf-indigo);
+  font-size: 11px;
+}
+
+/* =========================================================
+   State machine
+   ========================================================= */
+.interbank-state-machine {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.interbank-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  min-width: 72px;
+}
+
+.interbank-step--preview { min-width: 62px; }
+
+.interbank-step__node {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--bf-border-strong);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  color: #94a3b8;
+  background: var(--bf-surface);
+  transition: all 400ms ease;
+  position: relative;
+  z-index: 1;
+}
+
+.interbank-step__node.is-done {
+  border-color: var(--step-color, var(--bf-success));
+  background: color-mix(in srgb, var(--step-color, var(--bf-success)) 12%, #ffffff);
+  color: var(--step-color, var(--bf-success));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--step-color, var(--bf-success)) 15%, transparent);
+}
+
+.interbank-step__node.is-current {
+  border-color: var(--bf-warn);
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--bf-warn);
+  box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.15);
+  animation: bf-current-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes bf-current-pulse {
+  0%, 100% { box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.15); }
+  50%      { box-shadow: 0 0 0 9px rgba(245, 158, 11, 0.06); }
+}
+
+.interbank-step__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--bf-text-muted);
+  text-align: center;
+  margin-top: 8px;
+  line-height: 1.25;
+  letter-spacing: 0.2px;
+}
+
+.interbank-step__label.is-current {
+  color: var(--bf-warn);
+  font-weight: 700;
+}
+
+.interbank-step__connector {
+  position: absolute;
+  top: 21px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--bf-border);
+  z-index: 0;
+}
+
+.interbank-step__connector.is-done {
+  background: var(--bf-success);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.35);
+}
+
+/* =========================================================
+   Failure / success states
+   ========================================================= */
+.interbank-failure-state {
+  padding: 14px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--bf-radius-sm);
+  margin-bottom: 16px;
+  animation: bf-fade-in 300ms ease-out;
+}
+
+.interbank-failure-state__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.interbank-failure-state__header i { font-size: 16px; }
+
+.interbank-failure-state__reason {
+  font-size: 12.5px;
+  color: var(--bf-text-muted);
+  line-height: 1.5;
+}
+
+.interbank-reversal-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--bf-radius-sm);
+  color: #047857;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.interbank-reversal-badge i { color: var(--bf-success); font-size: 14px; }
+
+.interbank-reversal-pending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: #b45309;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.interbank-success-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border: 1px solid #a7f3d0;
+  border-radius: var(--bf-radius-md);
+  color: #047857;
+  text-align: center;
+  margin-bottom: 16px;
+  animation: bf-success-pop 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.interbank-success-state i {
+  font-size: 32px;
+  color: var(--bf-success);
+}
+
+.interbank-success-state > span {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+@keyframes bf-success-pop {
+  0%   { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.interbank-ref {
+  font-family: var(--bf-font-mono);
+  font-size: 10.5px;
+  color: #065f46;
+  letter-spacing: 0.3px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--bf-radius-sm);
+  margin-top: 4px;
+}
+
+/* =========================================================
+   Event log
+   ========================================================= */
+.interbank-event-log {
+  border-top: 1px solid var(--bf-border);
+  padding-top: 16px;
+  margin-top: 4px;
+}
+
+.interbank-event-log__title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--bf-text-muted);
+  margin-bottom: 12px;
+}
+
+.interbank-event {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 3px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bf-border);
+  font-size: 12px;
+}
+
+.interbank-event:last-child { border-bottom: none; }
+
+.interbank-event__type {
+  grid-column: 1;
+  font-family: var(--bf-font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--bf-indigo);
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  padding: 2px 7px;
+  border-radius: var(--bf-radius-sm);
+  white-space: nowrap;
+}
+
+.interbank-event__status {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--bf-text-muted);
+  font-size: 11.5px;
+}
+
+.interbank-event__status i {
+  color: var(--bf-accent-strong);
+  font-size: 10px;
+}
+
+.interbank-event__to {
+  color: var(--bf-text);
+  font-weight: 700;
+}
+
+.interbank-event__detail {
+  grid-column: 1 / -1;
+  font-size: 11.5px;
+  color: var(--bf-text-muted);
+  padding-left: 2px;
+  line-height: 1.4;
+}
+
+.interbank-event__time {
+  grid-column: 3;
+  grid-row: 1;
+  font-size: 10.5px;
+  color: var(--bf-text-muted);
+  font-family: var(--bf-font-mono);
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+/* =========================================================
+   History
+   ========================================================= */
+.interbank-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.interbank-history-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--bf-radius-md);
+  border: 1px solid var(--bf-border);
+  background: var(--bf-surface);
+  transition: all 150ms ease;
+}
+
+.interbank-history-item:hover {
+  border-color: var(--bf-border-strong);
+  box-shadow: var(--bf-shadow-sm);
+}
+
+.interbank-history-item.is-completed { border-left: 3px solid var(--bf-success); }
+.interbank-history-item.is-reversed  { border-left: 3px solid var(--bf-purple); }
+.interbank-history-item.is-failed    { border-left: 3px solid var(--bf-danger); }
+.interbank-history-item.is-pending   { border-left: 3px solid var(--bf-warn); }
+
+.interbank-history-item__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.interbank-history-item.is-completed .interbank-history-item__icon {
+  color: var(--bf-success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.interbank-history-item.is-reversed .interbank-history-item__icon {
+  color: var(--bf-purple);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.interbank-history-item.is-failed .interbank-history-item__icon {
+  color: var(--bf-danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.interbank-history-item.is-pending .interbank-history-item__icon {
+  color: var(--bf-warn);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.interbank-history-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.interbank-history-item__ref {
+  font-family: var(--bf-font-mono);
+  font-size: 11px;
+  color: var(--bf-indigo);
+  letter-spacing: 0.3px;
+  margin-bottom: 3px;
+  font-weight: 600;
+}
+
+.interbank-history-item__route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--bf-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.interbank-history-item__route i {
+  color: var(--bf-accent-strong);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.interbank-history-item__route strong {
+  color: var(--bf-text);
+  font-weight: 700;
+}
+
+.interbank-history-item__reason {
+  font-size: 11.5px;
+  color: #b91c1c;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.interbank-history-item__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.interbank-history-item__amount {
+  font-family: var(--bf-font-mono);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--bf-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.interbank-history-item__date {
+  font-size: 10.5px;
+  color: var(--bf-text-muted);
+  font-family: var(--bf-font-mono);
+  letter-spacing: 0.2px;
+}
+
+/* Status badges */
+.interbank-status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--bf-radius-pill);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.interbank-status-badge--completed       { color: #047857; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.28); }
+.interbank-status-badge--reversed        { color: #6d28d9; background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.28); }
+.interbank-status-badge--credit-failed   { color: #b91c1c; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.28); }
+.interbank-status-badge--timeout         { color: #b45309; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.28); }
+.interbank-status-badge--bank-unavailable { color: #b91c1c; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.28); }
+.interbank-status-badge--reversal-pending { color: #c2410c; background: rgba(249, 115, 22, 0.1); border-color: rgba(249, 115, 22, 0.28); }
+.interbank-status-badge--initiated       { color: #4338ca; background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.28); }
+.interbank-status-badge--debited         { color: #b45309; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.28); }
+.interbank-status-badge--sent-to-network { color: #1d4ed8; background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.28); }
+
+/* =========================================================
+   Empty / loading
+   ========================================================= */
+.interbank-empty-history {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--bf-text-muted);
+}
+
+.interbank-empty-history__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+  border: 1px solid #ddd6fe;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  color: var(--bf-indigo);
+}
+
+.interbank-empty-history h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--bf-text);
+}
+
+.interbank-empty-history p {
+  margin: 0;
+  font-size: 13.5px;
+  max-width: 380px;
+}
+
+.interbank-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #eef2f7 25%, #e2e8f0 50%, #eef2f7 75%);
+  background-size: 200% 100%;
+  animation: bf-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--bf-radius-sm);
+}
+
+.skeleton--input { height: 44px; }
+.skeleton--row { height: 68px; }
+
+@keyframes bf-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 720px) {
+  .interbank-page { padding: 22px 14px 50px; }
+  .interbank-hero { padding: 22px; }
+  .interbank-hero__title { font-size: 19px; }
+  .interbank-hero__badges {
+    flex-direction: row;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .interbank-panel { padding: 18px; }
+  .interbank-payment-card__amount { font-size: 22px; }
+  .interbank-state-machine { gap: 4px; }
+  .interbank-step { min-width: 56px; }
+  .interbank-step__node { width: 36px; height: 36px; font-size: 14px; }
+  .interbank-step__label { font-size: 9.5px; }
+  .interbank-step__connector { top: 18px; }
+  .interbank-history-item { padding: 12px 14px; gap: 12px; }
+  .interbank-history-item__right { align-items: flex-end; }
+}
+
+@media (max-width: 480px) {
+  .interbank-panel { padding: 16px; }
+  .interbank-panel__title { font-size: 10px; margin-bottom: 16px; padding-bottom: 12px; }
+  .interbank-history-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .interbank-history-item__right {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+}

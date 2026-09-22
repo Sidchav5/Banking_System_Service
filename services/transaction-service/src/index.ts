@@ -12,6 +12,7 @@ import {
   AppError,
   Errors,
   authenticateToken,
+  requireRole,
 } from '@bankflow/shared';
 import axios from 'axios';
 
@@ -188,9 +189,13 @@ app.get('/:id', authenticateToken, async (req, res, next) => {
   }
 });
 
-// ─── Reverse Transaction Endpoint ────────────────────────────────────────────
+// ─── Reverse Transaction Endpoint (Admin/Employee Only) ──────────────────────
 
-app.post('/:id/reverse', authenticateToken, async (req, res, next) => {
+app.post(
+  '/:id/reverse',
+  authenticateToken,
+  requireRole('ADMIN', 'EMPLOYEE'),
+  async (req, res, next) => {
   try {
     const { id } = req.params;
     const authHeader = req.headers.authorization;

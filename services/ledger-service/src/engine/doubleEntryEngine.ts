@@ -97,17 +97,15 @@ export async function postJournalEntry(
       ledgerRecords.push(ledgerRes.rows[0]);
     }
 
+    // 3. Synchronize Customer Account Balances before committing
+    await syncAccountBalances(entries);
+
     await client.query('COMMIT');
     logger.info('Successfully posted double-entry journal', {
       journalId: journal.id,
       referenceId,
       entryType,
       totalAmount: totalDebits,
-    });
-
-    // 3. Post-Transaction Account Balance Synchronization
-    syncAccountBalances(entries).catch((err) => {
-      logger.error('Post-journal balance sync warning (non-blocking)', { err: err.message });
     });
 
     return {
@@ -144,9 +142,10 @@ async function syncAccountBalances(
         { delta }
       );
     } catch (err: any) {
-      logger.warn(`Could not sync balance to account-service for account ${entry.accountNumber}`, {
-        message: err.message,
-      });
+      const msg = err.response?.data?.error?.message || err.message || 'Balance sync failed';
+      const code = err.response?.data?.error?.code || 'BALANCE_SYNC_ERROR';
+      const status = err.response?.status || 500;
+      throw new AppError(msg, status, code);
     }
   }
 }

@@ -16,6 +16,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     .slice(0, 2)
     .toUpperCase();
 
+  const isStaff = user?.role === 'EMPLOYEE' || user?.role === 'ADMIN' || user?.role === 'AUDITOR';
+  const isCustomer = user?.role === 'CUSTOMER' || !user?.role;
+
   const navItems = [
     {
       key: 'status',
@@ -23,22 +26,48 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
       icon: 'bi-cpu',
       authRequired: false,
     },
-    {
-      key: 'accounts',
-      label: 'Accounts',
-      icon: 'bi-wallet2',
-      authRequired: true,
-    },
+    ...(isStaff
+      ? [
+          {
+            key: 'staff',
+            label: user?.role === 'AUDITOR' ? 'Audit Desk' : 'Staff Portal',
+            icon: 'bi-shield-lock-fill',
+            authRequired: true,
+          },
+        ]
+      : []),
+    ...(isCustomer
+      ? [
+          {
+            key: 'accounts',
+            label: 'Accounts',
+            icon: 'bi-wallet2',
+            authRequired: true,
+          },
+          {
+            key: 'transactions',
+            label: 'Transfers & History',
+            icon: 'bi-arrow-left-right',
+            authRequired: true,
+          },
+          {
+            key: 'interbank',
+            label: 'Inter-Bank Transfer',
+            icon: 'bi-globe2',
+            authRequired: true,
+          },
+          {
+            key: 'beneficiaries',
+            label: 'Beneficiaries',
+            icon: 'bi-people-fill',
+            authRequired: true,
+          },
+        ]
+      : []),
     {
       key: 'ledger',
       label: 'Ledger Transactions',
       icon: 'bi-journal-text',
-      authRequired: true,
-    },
-    {
-      key: 'transactions',
-      label: 'Transfers & History',
-      icon: 'bi-arrow-left-right',
       authRequired: true,
     },
     {

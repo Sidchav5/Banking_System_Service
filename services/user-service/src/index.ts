@@ -304,6 +304,58 @@ app.patch('/:id/kyc', authenticateToken, requireRole('ADMIN', 'EMPLOYEE'), async
   }
 });
 
+/**
+ * GET /
+ * Admin/Employee/Auditor list all user profiles.
+ */
+app.get('/', authenticateToken, requireRole('ADMIN', 'EMPLOYEE', 'AUDITOR'), async (req, res, next) => {
+  try {
+    const { kycStatus } = req.query;
+    let profiles: UserProfile[] = [];
+
+    try {
+      let sql = 'SELECT * FROM user_profiles';
+      const params: any[] = [];
+      if (kycStatus) {
+        sql += ' WHERE kyc_status = $1';
+        params.push(kycStatus);
+      }
+      sql += ' ORDER BY created_at DESC';
+
+      const result = await query(sql, params);
+      profiles = result.rows.map((row) => ({
+        id: row.id,
+        email: row.email,
+        firstName: row.first_name,
+        lastName: row.last_name,
+        phone: row.phone,
+        dateOfBirth: row.date_of_birth,
+        address: row.address,
+        city: row.city,
+        state: row.state,
+        zipCode: row.zip_code,
+        kycStatus: row.kyc_status,
+        kycDocuments: row.kyc_documents,
+        createdAt: new Date(row.created_at).toISOString(),
+        updatedAt: new Date(row.updated_at).toISOString(),
+      }));
+    } catch {
+      profiles = Array.from(inMemoryProfiles.values());
+      if (kycStatus) {
+        profiles = profiles.filter((p) => p.kycStatus === kycStatus);
+      }
+    }
+
+    res.json({
+      success: true,
+      data: profiles,
+      requestId: (req as unknown as { id?: string }).id ?? 'unknown',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use(errorHandler);
 
 // ─── Start ───────────────────────────────────────────────────────────────────

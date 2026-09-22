@@ -176,9 +176,14 @@ app.get('/journals/account/:accountNumber', authenticateToken, async (req, res, 
       [accountNumber]
     );
 
+    const mappedRows = result.rows.map((row) => ({
+      ...row,
+      amount: Number(row.amount),
+    }));
+
     res.json({
       success: true,
-      data: result.rows,
+      data: mappedRows,
       requestId: req.headers['x-request-id'] as string,
     });
   } catch (err) {

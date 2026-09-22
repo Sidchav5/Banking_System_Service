@@ -7,7 +7,8 @@ import './TransactionListView.css';
 const API_BASE_URL = 'http://localhost:3000/api/v1';
 
 export const TransactionListView: React.FC = () => {
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
+  const isStaff = user?.role === 'ADMIN' || user?.role === 'EMPLOYEE';
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,8 +64,8 @@ export const TransactionListView: React.FC = () => {
     }
   };
 
-  const formatCurrency = (paise: number) =>
-    (paise / 100).toLocaleString('en-IN', {
+  const formatCurrency = (paise: number | string) =>
+    (Number(paise) / 100).toLocaleString('en-IN', {
       style: 'currency',
       currency: 'INR',
       maximumFractionDigits: 2,
@@ -87,7 +88,7 @@ export const TransactionListView: React.FC = () => {
       if (t.status === 'COMPLETED') acc.completed++;
       else if (t.status === 'PENDING') acc.pending++;
       else if (t.status === 'REVERSED') acc.reversed++;
-      acc.volume += t.amount;
+      acc.volume += Number(t.amount || 0);
       return acc;
     },
     { completed: 0, pending: 0, reversed: 0, volume: 0 }
@@ -264,13 +265,13 @@ export const TransactionListView: React.FC = () => {
                         </td>
 
                         <td className="align-center">
-                          {isCompleted ? (
+                          {isCompleted && isStaff ? (
                             <button
                               type="button"
                               className="btn-reverse"
                               onClick={() => handleReverse(txn.id)}
                               disabled={isReversing}
-                              title="Reverse Transaction"
+                              title="Reverse Transaction (Bank Staff Only)"
                             >
                               {isReversing ? (
                                 <span className="spinner spinner--dark" />
@@ -282,7 +283,7 @@ export const TransactionListView: React.FC = () => {
                               )}
                             </button>
                           ) : (
-                            <span className="cell-dash">—</span>
+                            <span className="cell-dash" title={isCompleted ? 'Transaction reversal requires Bank Staff authorization' : undefined}>—</span>
                           )}
                         </td>
                       </tr>
