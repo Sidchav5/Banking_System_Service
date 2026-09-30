@@ -10,7 +10,7 @@
     "simulators/*"
   ],
   "scripts": {
-    "dev": "concurrently -n \"GATEWAY,AUTH,USER,ACCOUNT,LEDGER,TRANS,PAYMENT,BENEFICIARY,BANK,SETTLE,RECON,NOTIFY,NET,EXTBANK,FRONTEND\" -c \"blue,green,magenta,yellow,red,cyan,white,yellow,gray,bgGreen,bgRed,bgYellow,bgBlue,bgMagenta,gray\" \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:user\" \"npm run dev:account\" \"npm run dev:ledger\" \"npm run dev:transaction\" \"npm run dev:payment\" \"npm run dev:beneficiary\" \"npm run dev:bank\" \"npm run dev:settlement\" \"npm run dev:reconciliation\" \"npm run dev:notification\" \"npm run dev:network\" \"npm run dev:extbank\" \"npm run dev:frontend\"",
+    "dev": "concurrently -n \"GATEWAY,AUTH,USER,ACCOUNT,LEDGER,TRANS,PAYMENT,BENEFICIARY,BANK,SETTLE,RECON,NOTIFY,NET,EXTBANK,FRONTEND,AI\" -c \"blue,green,magenta,yellow,red,cyan,white,yellow,gray,bgGreen,bgRed,bgYellow,bgBlue,bgMagenta,gray,bgCyan\" \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:user\" \"npm run dev:account\" \"npm run dev:ledger\" \"npm run dev:transaction\" \"npm run dev:payment\" \"npm run dev:beneficiary\" \"npm run dev:bank\" \"npm run dev:settlement\" \"npm run dev:reconciliation\" \"npm run dev:notification\" \"npm run dev:network\" \"npm run dev:extbank\" \"npm run dev:frontend\" \"npm run dev:ai\"",
     "dev:gateway": "npm run dev --workspace=@bankflow/api-gateway",
     "dev:auth": "npm run dev --workspace=@bankflow/auth-service",
     "dev:user": "npm run dev --workspace=@bankflow/user-service",
@@ -26,6 +26,10 @@
     "dev:network": "npm run dev --workspace=@bankflow/payment-network",
     "dev:extbank": "npm run dev --workspace=@bankflow/external-bank",
     "dev:frontend": "npm run dev --workspace=@bankflow/frontend",
+    "dev:ai": "npm run dev --workspace=@bankflow/ai-assistant-service",
+    "ingest": "npm run ingest --workspace=@bankflow/ai-assistant-service",
+    "build-index": "npm run build-index --workspace=@bankflow/ai-assistant-service",
+    "eval:rag": "npm run eval --workspace=@bankflow/ai-assistant-service",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
     "infra:logs": "docker compose logs -f",

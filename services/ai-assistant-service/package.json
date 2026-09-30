@@ -1,0 +1,41 @@
+{
+  "name": "@bankflow/ai-assistant-service",
+  "version": "1.0.0",
+  "description": "BankFlow AI Assistant — RAG-powered banking intelligence service",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only --exit-child src/index.ts",
+    "build": "tsc --project tsconfig.json",
+    "start": "node dist/index.js",
+    "clean": "rimraf dist",
+    "ingest": "ts-node --project tsconfig.json src/cli/ingest.ts",
+    "build-index": "ts-node --project tsconfig.json src/cli/buildIndex.ts",
+    "eval": "ts-node --project tsconfig.json src/cli/runEval.ts"
+  },
+  "dependencies": {
+    "@bankflow/shared": "*",
+    "@google/generative-ai": "^0.21.0",
+    "@qdrant/js-client-rest": "^1.9.0",
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "pdf-parse": "^1.1.1",
+    "uuid": "^10.0.0",
+    "wink-bm25-text-search": "^3.1.2",
+    "wink-nlp": "^2.3.1",
+    "wink-eng-lite-web-model": "^1.5.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.16.0",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/uuid": "^10.0.0",
+    "rimraf": "^5.0.10",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.4"
+  }
+}
