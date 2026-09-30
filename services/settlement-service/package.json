@@ -1,7 +1,7 @@
 {
   "name": "@bankflow/settlement-service",
   "version": "1.0.0",
-  "description": "BankFlow settlement-service",
+  "description": "BankFlow settlement-service — Inter-bank net position settlement",
   "main": "./dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only --exit-child src/index.ts",
@@ -11,12 +11,17 @@
   },
   "dependencies": {
     "@bankflow/shared": "*",
+    "axios": "^1.20.0",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "pg": "^8.23.0",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.16.0",
+    "@types/pg": "^8.23.1",
+    "@types/uuid": "^10.0.0",
     "rimraf": "^5.0.10",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.5.4"

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { config } from '../config';
+import { paymentLimiter } from '../middleware/rateLimiter';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Service Proxy Routes
@@ -49,7 +50,8 @@ proxyRouter.use('/api/v1/ledger', createServiceProxy(config.services.ledger));
 // ─── Transaction Service ───────────────────────────────────────────────────
 proxyRouter.use('/api/v1/transactions', createServiceProxy(config.services.transaction));
 
-// ─── Payment Service ───────────────────────────────────────────────────────
+// ─── Payment Service (with payment rate limiter on POST) ───────────────────
+proxyRouter.post('/api/v1/payments', paymentLimiter);
 proxyRouter.use('/api/v1/payments', createServiceProxy(config.services.payment));
 
 // ─── Beneficiary Service ───────────────────────────────────────────────────
@@ -71,4 +73,12 @@ proxyRouter.use('/api/v1/notifications', createServiceProxy(config.services.noti
 proxyRouter.use(
   '/api/v1/admin/reconciliation',
   createServiceProxy(config.services.reconciliation),
+);
+proxyRouter.use(
+  '/api/v1/admin/settlement',
+  createServiceProxy(config.services.settlement),
+);
+proxyRouter.use(
+  '/api/v1/admin/notifications',
+  createServiceProxy(config.services.notification),
 );

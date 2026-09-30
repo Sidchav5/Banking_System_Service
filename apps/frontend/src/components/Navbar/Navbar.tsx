@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { NotificationBell } from '../NotificationBell/NotificationBell';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -153,8 +154,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                 </button>
               </div>
             ) : (
-              /* LOGGED IN: Quick user avatar chip + Control panel prompt */
+              /* LOGGED IN: Quick user avatar chip + notification bell */
               <div className="bankflow-logged-in-top">
+                <NotificationBell />
                 <div
                   className="user-chip user-chip--clickable"
                   onClick={() => setIsSidebarOpen(true)}
@@ -164,7 +166,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                   <span className="user-chip__meta d-none d-md-flex">
                     <span className="user-chip__email">{user?.email}</span>
                     <span className="user-chip__role">
-                      <i className="bi bi-shield-check"></i>
+                      <i className="bi bi-shield-check" />
                       {user?.role}
                     </span>
                   </span>

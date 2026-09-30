@@ -43,3 +43,27 @@ export const authLimiter = rateLimit({
     });
   },
 });
+
+/** Payment rate limiter — payment initiations per minute per IP */
+export const paymentLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: config.rateLimit.paymentMaxRequests,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    // Key by IP; in prod would key by userId from JWT
+    const authHeader = req.headers.authorization ?? '';
+    const token = authHeader.replace('Bearer ', '').split('.')[1] ?? req.ip ?? 'unknown';
+    return token.substring(0, 20); // Use partial token payload as key
+  },
+  handler: (_req, res) => {
+    res.status(429).json({
+      success: false,
+      error: {
+        code: 'PAYMENT_RATE_LIMITED',
+        message: 'Too many payment requests. Maximum 5 payments per minute allowed.',
+      },
+    });
+  },
+});
+

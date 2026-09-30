@@ -18,6 +18,7 @@ export const config = {
   accountServiceUrl: process.env.ACCOUNT_SERVICE_URL ?? 'http://localhost:3003',
   paymentNetworkUrl: process.env.PAYMENT_NETWORK_URL ?? 'http://localhost:4000',
   bankServiceUrl: process.env.BANK_SERVICE_URL ?? 'http://localhost:3008',
+  notificationServiceUrl: process.env.NOTIFICATION_SERVICE_URL ?? 'http://localhost:3011',
   // Saga timeouts
   networkTimeoutMs: parseInt(process.env.NETWORK_TIMEOUT_MS ?? '8000', 10), // 8s timeout
 };

@@ -50,10 +50,11 @@ export const config = {
   // Rate limiting
   rateLimit: {
     windowMs: parseInt(optional('RATE_LIMIT_WINDOW_MS', '60000'), 10), // 1 minute
-    maxRequests: parseInt(optional('RATE_LIMIT_MAX_REQUESTS', '100'), 10),
-    // Stricter limits for auth endpoints
+    maxRequests: parseInt(optional('RATE_LIMIT_MAX_REQUESTS', '1000'), 10),
+    // Stricter limits for auth endpoints (higher in dev for testing)
     authWindowMs: parseInt(optional('AUTH_RATE_LIMIT_WINDOW_MS', '900000'), 10), // 15 min
-    authMaxRequests: parseInt(optional('AUTH_RATE_LIMIT_MAX_REQUESTS', '10'), 10),
+    authMaxRequests: parseInt(optional('AUTH_RATE_LIMIT_MAX_REQUESTS', '500'), 10),
+    paymentMaxRequests: parseInt(optional('PAYMENT_RATE_LIMIT_MAX_REQUESTS', '100'), 10),
   },
 } as const;
 

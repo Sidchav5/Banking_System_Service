@@ -6,7 +6,7 @@ import './StaffPortal.css';
 
 const API_BASE_URL = 'http://localhost:3000/api/v1';
 
-type StaffTab = 'kyc' | 'accounts' | 'reversals' | 'limits';
+type StaffTab = 'kyc' | 'accounts' | 'reversals' | 'limits' | 'settlement' | 'reconciliation';
 
 export const StaffPortal: React.FC = () => {
   const { accessToken, user } = useAuth();
@@ -42,6 +42,20 @@ export const StaffPortal: React.FC = () => {
   const isAdmin = user?.role === 'ADMIN';
   const isEmployee = user?.role === 'EMPLOYEE' || isAdmin;
 
+  // Settlement State
+  const [positions, setPositions] = useState<any[]>([]);
+  const [batches, setBatches] = useState<any[]>([]);
+  const [loadingSettlement, setLoadingSettlement] = useState(false);
+  const [runningBatch, setRunningBatch] = useState(false);
+  const [settlementMsg, setSettlementMsg] = useState<string | null>(null);
+
+  // Reconciliation State
+  const [reconRuns, setReconRuns] = useState<any[]>([]);
+  const [mismatches, setMismatches] = useState<any[]>([]);
+  const [loadingRecon, setLoadingRecon] = useState(false);
+  const [runningRecon, setRunningRecon] = useState(false);
+  const [reconMsg, setReconMsg] = useState<string | null>(null);
+
   // ── Fetch Users for KYC Desk ───────────────────────────────────────────────
   const fetchUsers = async () => {
     if (!accessToken) return;
@@ -67,6 +81,10 @@ export const StaffPortal: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'kyc') {
       fetchUsers();
+    } else if (activeTab === 'settlement') {
+      fetchSettlement();
+    } else if (activeTab === 'reconciliation') {
+      fetchReconciliation();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, kycFilter, accessToken]);
@@ -190,6 +208,86 @@ export const StaffPortal: React.FC = () => {
     }
   };
 
+  // ── Settlement helpers ──────────────────────────────────────────────────────
+  const fetchSettlement = async () => {
+    if (!accessToken) return;
+    setLoadingSettlement(true);
+    try {
+      const [posRes, batchRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/settlement/positions`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+        axios.get(`${API_BASE_URL}/settlement/batches`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+      ]);
+      if (posRes.data?.success) setPositions(posRes.data.data);
+      if (batchRes.data?.success) setBatches(batchRes.data.data);
+    } catch { /* silent */ }
+    setLoadingSettlement(false);
+  };
+
+  const runSettlementBatch = async () => {
+    if (!accessToken) return;
+    setRunningBatch(true);
+    setSettlementMsg(null);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/settlement/batches/run`, {}, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.data?.success) {
+        setSettlementMsg(res.data.message ?? 'Settlement batch completed successfully');
+        fetchSettlement();
+      }
+    } catch (err: any) {
+      setSettlementMsg(err.response?.data?.error?.message ?? 'Settlement batch failed');
+    }
+    setRunningBatch(false);
+  };
+
+  // ── Reconciliation helpers ──────────────────────────────────────────────────
+  const fetchReconciliation = async () => {
+    if (!accessToken) return;
+    setLoadingRecon(true);
+    try {
+      const [runsRes, mismatchRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/reconciliation/runs`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+        axios.get(`${API_BASE_URL}/reconciliation/mismatches`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+      ]);
+      if (runsRes.data?.success) setReconRuns(runsRes.data.data);
+      if (mismatchRes.data?.success) setMismatches(mismatchRes.data.data);
+    } catch { /* silent */ }
+    setLoadingRecon(false);
+  };
+
+  const runReconciliation = async () => {
+    if (!accessToken) return;
+    setRunningRecon(true);
+    setReconMsg(null);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/reconciliation/runs`, {}, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.data?.success) {
+        setReconMsg('Reconciliation run started. Refresh in a few seconds to see results.');
+        setTimeout(fetchReconciliation, 3000);
+      }
+    } catch (err: any) {
+      setReconMsg(err.response?.data?.error?.message ?? 'Reconciliation failed to start');
+    }
+    setRunningRecon(false);
+  };
+
+  const resolveMismatch = async (itemId: string, resolution: string) => {
+    if (!accessToken) return;
+    try {
+      await axios.post(
+        `${API_BASE_URL}/reconciliation/mismatches/${itemId}/resolve`,
+        { resolution, note: 'Resolved by staff via portal' },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      setMismatches((prev) => prev.filter((m) => m.id !== itemId));
+    } catch (err: any) {
+      alert(err.response?.data?.error?.message ?? 'Failed to resolve mismatch');
+    }
+  };
+
   const formatCurrency = (paise: number | string) =>
     (Number(paise) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
 
@@ -263,8 +361,32 @@ export const StaffPortal: React.FC = () => {
               className={`staff-tab ${activeTab === 'limits' ? 'staff-tab--active' : ''}`}
               onClick={() => setActiveTab('limits')}
             >
-              <i className="bi bi-speedometer2"></i>
+              <i className="bi bi-speedometer2" />
               <span>Limits</span>
+            </button>
+          )}
+          {isEmployee && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'settlement'}
+              className={`staff-tab ${activeTab === 'settlement' ? 'staff-tab--active' : ''}`}
+              onClick={() => setActiveTab('settlement')}
+            >
+              <i className="bi bi-bank" />
+              <span>Settlement</span>
+            </button>
+          )}
+          {isEmployee && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'reconciliation'}
+              className={`staff-tab ${activeTab === 'reconciliation' ? 'staff-tab--active' : ''}`}
+              onClick={() => setActiveTab('reconciliation')}
+            >
+              <i className="bi bi-clipboard-check" />
+              <span>Reconciliation</span>
             </button>
           )}
         </nav>
@@ -726,6 +848,219 @@ export const StaffPortal: React.FC = () => {
                 </button>
               </div>
             </form>
+          </section>
+        )}
+
+        {/* Tab: Settlement */}
+        {activeTab === 'settlement' && (
+          <section className="staff-section">
+            <div className="section-toolbar">
+              <div className="section-title-group">
+                <h3 className="section-title">Inter-Bank Settlement</h3>
+                <span className="section-count">{positions.length} bank pairs</span>
+              </div>
+              <div className="filter-group">
+                <button type="button" className="btn btn--ghost btn--sm" onClick={fetchSettlement} disabled={loadingSettlement}>
+                  <i className="bi bi-arrow-clockwise" /> Refresh
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--primary btn--sm"
+                  onClick={runSettlementBatch}
+                  disabled={runningBatch}
+                  id="run-settlement-batch-btn"
+                >
+                  {runningBatch ? <><span className="spinner" /> Running…</> : <><i className="bi bi-play-circle" /> Run Settlement Batch</>}
+                </button>
+              </div>
+            </div>
+            {settlementMsg && (
+              <div className="staff-alert staff-alert--success">
+                <i className="bi bi-check-circle-fill" /> {settlementMsg}
+              </div>
+            )}
+            <div className="settlement-grid">
+              <div>
+                <h4 className="subsection-title">Net Positions</h4>
+                {loadingSettlement ? (
+                  <div className="staff-loading"><span className="spinner spinner--dark" /> Loading positions…</div>
+                ) : positions.length === 0 ? (
+                  <div className="staff-empty">
+                    <i className="bi bi-bar-chart" />
+                    <p>No settlement positions yet</p>
+                    <small>Complete inter-bank transfers to generate net positions</small>
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="staff-table">
+                      <thead>
+                        <tr>
+                          <th>From Bank</th>
+                          <th>To Bank</th>
+                          <th>Net Amount</th>
+                          <th>Direction</th>
+                          <th>Last Updated</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {positions.map((p) => (
+                          <tr key={p.id}>
+                            <td><span className="bank-code-chip">{p.fromBank}</span></td>
+                            <td><span className="bank-code-chip">{p.toBank}</span></td>
+                            <td className={p.netAmountRupees > 0 ? 'text-danger fw-bold' : 'text-success fw-bold'}>
+                              ₹{Math.abs(p.netAmountRupees).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td>
+                              <span className={`status-badge status-badge--${p.netAmountRupees >= 0 ? 'warning' : 'success'}`}>
+                                {p.netAmountRupees >= 0 ? 'OWES' : 'OWED'}
+                              </span>
+                            </td>
+                            <td className="text-muted" style={{ fontSize: '0.78rem' }}>
+                              {new Date(p.lastUpdatedAt).toLocaleString()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+              <div>
+                <h4 className="subsection-title">Recent Settlement Batches</h4>
+                {batches.length === 0 ? (
+                  <div className="staff-empty">
+                    <i className="bi bi-collection" />
+                    <p>No settlement batches run yet</p>
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="staff-table">
+                      <thead>
+                        <tr>
+                          <th>Batch ID</th>
+                          <th>Status</th>
+                          <th>Entries</th>
+                          <th>Total</th>
+                          <th>Settled At</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {batches.map((b) => (
+                          <tr key={b.id}>
+                            <td style={{ fontSize: '0.72rem', fontFamily: 'monospace' }}>{b.id.substring(0, 12)}…</td>
+                            <td><span className={`status-badge status-badge--${b.status === 'SETTLED' ? 'success' : b.status === 'FAILED' ? 'danger' : 'warning'}`}>{b.status}</span></td>
+                            <td>{b.totalEntries}</td>
+                            <td>₹{(b.totalAmountRupees ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                            <td style={{ fontSize: '0.78rem' }}>{b.settledAt ? new Date(b.settledAt).toLocaleString() : '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Tab: Reconciliation */}
+        {activeTab === 'reconciliation' && (
+          <section className="staff-section">
+            <div className="section-toolbar">
+              <div className="section-title-group">
+                <h3 className="section-title">Payment Reconciliation</h3>
+                <span className="section-count">{mismatches.length} open mismatches</span>
+              </div>
+              <div className="filter-group">
+                <button type="button" className="btn btn--ghost btn--sm" onClick={fetchReconciliation} disabled={loadingRecon}>
+                  <i className="bi bi-arrow-clockwise" /> Refresh
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--primary btn--sm"
+                  onClick={runReconciliation}
+                  disabled={runningRecon}
+                  id="run-reconciliation-btn"
+                >
+                  {runningRecon ? <><span className="spinner" /> Running…</> : <><i className="bi bi-play-circle" /> Run Reconciliation</>}
+                </button>
+              </div>
+            </div>
+            {reconMsg && (
+              <div className="staff-alert staff-alert--info">
+                <i className="bi bi-info-circle-fill" /> {reconMsg}
+              </div>
+            )}
+
+            <div className="settlement-grid">
+              <div>
+                <h4 className="subsection-title">Recent Runs</h4>
+                {loadingRecon ? (
+                  <div className="staff-loading"><span className="spinner spinner--dark" /> Loading runs…</div>
+                ) : reconRuns.length === 0 ? (
+                  <div className="staff-empty">
+                    <i className="bi bi-clipboard" />
+                    <p>No reconciliation runs yet</p>
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="staff-table">
+                      <thead>
+                        <tr><th>Run ID</th><th>Status</th><th>Checked</th><th>Mismatches</th><th>Started</th></tr>
+                      </thead>
+                      <tbody>
+                        {reconRuns.map((r) => (
+                          <tr key={r.id}>
+                            <td style={{ fontSize: '0.72rem', fontFamily: 'monospace' }}>{r.id.substring(0, 12)}…</td>
+                            <td><span className={`status-badge status-badge--${r.status === 'COMPLETED' ? 'success' : r.status === 'FAILED' ? 'danger' : 'warning'}`}>{r.status}</span></td>
+                            <td>{r.payments_checked}</td>
+                            <td>{r.mismatches_found > 0 ? <span className="text-danger fw-bold">{r.mismatches_found}</span> : r.mismatches_found}</td>
+                            <td style={{ fontSize: '0.78rem' }}>{new Date(r.started_at).toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h4 className="subsection-title">Open Mismatches</h4>
+                {mismatches.length === 0 ? (
+                  <div className="staff-empty">
+                    <i className="bi bi-patch-check-fill" style={{ color: '#10b981' }} />
+                    <p>No open mismatches</p>
+                    <small>All payments are reconciled ✓</small>
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="staff-table">
+                      <thead>
+                        <tr><th>Payment ID</th><th>Type</th><th>Payment Status</th><th>Action</th></tr>
+                      </thead>
+                      <tbody>
+                        {mismatches.map((m) => (
+                          <tr key={m.id}>
+                            <td style={{ fontSize: '0.72rem', fontFamily: 'monospace' }}>{String(m.payment_id).substring(0, 12)}…</td>
+                            <td><span className="status-badge status-badge--warning">{m.mismatch_type}</span></td>
+                            <td>{m.payment_status}</td>
+                            <td>
+                              <button
+                                type="button"
+                                className="btn btn--ghost btn--sm"
+                                onClick={() => resolveMismatch(m.id, 'RESOLVED')}
+                              >
+                                <i className="bi bi-check-lg" /> Resolve
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
           </section>
         )}
       </div>

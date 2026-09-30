@@ -116,6 +116,7 @@ app.post('/', authenticateToken, async (req, res, next) => {
     const idempotencyKey =
       (req.headers['x-idempotency-key'] as string) ||
       (req.headers['idempotency-key'] as string) ||
+      (req.body.idempotencyKey as string) ||
       null;
 
     if (idempotencyKey) {
@@ -227,6 +228,47 @@ app.post('/', authenticateToken, async (req, res, next) => {
       },
       payment
     );
+
+    // ── Fire notification for terminal saga states ─────────────────────────
+    const terminalStates = ['COMPLETED', 'REVERSED', 'FAILED'];
+    if (terminalStates.includes(finalPayment.status)) {
+      const notifTypeMap: Record<string, string> = {
+        COMPLETED: 'PAYMENT_COMPLETED',
+        REVERSED: 'PAYMENT_REVERSED',
+        FAILED: 'PAYMENT_FAILED',
+      };
+      const notifTitleMap: Record<string, string> = {
+        COMPLETED: '✅ Payment Successful',
+        REVERSED: '↩️ Payment Reversed',
+        FAILED: '❌ Payment Failed',
+      };
+      const amountRupees = (finalPayment.amount / 100).toFixed(2);
+      const notifMsgMap: Record<string, string> = {
+        COMPLETED: `₹${amountRupees} sent to ${destinationAccountNumber} (${destinationBankCode}) — Ref: ${finalPayment.paymentNumber}`,
+        REVERSED: `₹${amountRupees} transfer to ${destinationAccountNumber} was reversed. Amount refunded to your account.`,
+        FAILED: `₹${amountRupees} transfer to ${destinationAccountNumber} failed. No amount was deducted.`,
+      };
+      axios
+        .post(
+          `${config.notificationServiceUrl}/notifications`,
+          {
+            userId,
+            type: notifTypeMap[finalPayment.status],
+            title: notifTitleMap[finalPayment.status],
+            message: notifMsgMap[finalPayment.status],
+            metadata: {
+              paymentId: finalPayment.id,
+              paymentNumber: finalPayment.paymentNumber,
+              amount: finalPayment.amount,
+              status: finalPayment.status,
+            },
+          },
+          { timeout: 3000 }
+        )
+        .catch(() => {
+          // Notification is best-effort; never block payment response
+        });
+    }
 
     const statusCode = finalPayment.status === 'COMPLETED' ? 201 : 202;
 
