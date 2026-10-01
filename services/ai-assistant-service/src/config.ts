@@ -48,8 +48,8 @@ export const config = {
   paymentServiceUrl: optional('PAYMENT_SERVICE_URL', 'http://localhost:3006'),
   beneficiaryServiceUrl: optional('BENEFICIARY_SERVICE_URL', 'http://localhost:3007'),
 
-  // JWT (for verifying incoming user tokens)
-  jwtSecret: optional('JWT_ACCESS_SECRET', process.env.JWT_SECRET ?? '7f3b2a9e1d8c4f6a5b0c9d2e4f6a8b0c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a'),
+  // JWT (for verifying incoming user tokens — MUST be set via JWT_ACCESS_SECRET env var)
+  jwtSecret: optional('JWT_ACCESS_SECRET', optional('JWT_SECRET', '')),
 
   // Knowledge base PDF folder path
   knowledgeDir: optional('KNOWLEDGE_DIR', '../../BankFlow_RAG_Knowledge_Base'),

@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+﻿import dotenv from 'dotenv';
 import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -12,8 +12,9 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET ?? 'bankflow_dev_jwt_secret_key_32_chars',
   databaseUrl:
     process.env.DATABASE_URL ??
-    'postgresql://neondb_owner:npg_THv4tw3bXCjW@ep-flat-wave-b3gqfmc1-pooler.c-4.ap-southeast-1.aws.neon.tech/neondb?sslmode=require',
+    (() => { throw new Error('DATABASE_URL environment variable is required'); })(),
 
   paymentServiceUrl: process.env.PAYMENT_SERVICE_URL ?? 'http://localhost:3006',
   ledgerServiceUrl: process.env.LEDGER_SERVICE_URL ?? 'http://localhost:3004',
 };
+
