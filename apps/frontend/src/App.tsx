@@ -12,6 +12,7 @@ import { StaffPortal } from './components/StaffPortal/StaffPortal';
 import { InterBankTransfer } from './components/InterBankTransfer/InterBankTransfer';
 import { BeneficiaryManager } from './components/BeneficiaryManager/BeneficiaryManager';
 import { Footer } from './components/Footer/Footer';
+import { AiChat } from './components/AiChat/AiChat';
 import './App.css';
 
 const MainContent: React.FC = () => {
@@ -153,6 +154,12 @@ const MainContent: React.FC = () => {
               </div>
             </div>
           )
+        )}
+
+        {activeTab === 'ai' && (
+          <div style={{ padding: '12px 16px', height: 'calc(100vh - 80px)' }}>
+            <AiChat />
+          </div>
         )}
 
         {activeTab === 'profile' && (

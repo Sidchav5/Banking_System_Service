@@ -40,11 +40,12 @@ export const config = {
     settlement: optional('SETTLEMENT_SERVICE_URL', 'http://localhost:3009'),
     reconciliation: optional('RECONCILIATION_SERVICE_URL', 'http://localhost:3010'),
     notification: optional('NOTIFICATION_SERVICE_URL', 'http://localhost:3011'),
+    aiAssistant: optional('AI_ASSISTANT_SERVICE_URL', 'http://localhost:3012'),
   },
 
   // JWT (gateway validates access tokens before proxying)
   jwt: {
-    accessSecret: optional('JWT_ACCESS_SECRET', process.env.JWT_SECRET ?? '7f3b2a9e1d8c4f6a5b0c9d2e4f6a8b0c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a'),
+    accessSecret: optional('JWT_ACCESS_SECRET', optional('JWT_SECRET', '')),
   },
 
   // Rate limiting

@@ -72,6 +72,12 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
       authRequired: true,
     },
     {
+      key: 'ai',
+      label: 'AI Assistant',
+      icon: 'bi-stars',
+      authRequired: false,
+    },
+    {
       key: 'profile',
       label: 'My Profile',
       icon: 'bi-person-circle',
@@ -131,6 +137,15 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                 >
                   <i className="bi bi-cpu"></i>
                   <span>System Status</span>
+                </button>
+                <button
+                  type="button"
+                  className={`bankflow-nav-link ai-nav-btn ${activeTab === 'ai' ? 'is-active' : ''}`}
+                  onClick={() => handleNavClick('ai')}
+                  id="nav-ai-assistant"
+                >
+                  <i className="bi bi-stars"></i>
+                  <span>AI Assistant</span>
                 </button>
                 <button
                   type="button"

@@ -82,3 +82,14 @@ proxyRouter.use(
   '/api/v1/admin/notifications',
   createServiceProxy(config.services.notification),
 );
+
+// ─── AI Assistant Service ──────────────────────────────────────────────────
+// POST /api/v1/ai/chat          → AI chat endpoint
+// DELETE /api/v1/ai/conversations/:id → Clear conversation
+// GET  /api/v1/ai/conversations/:id   → Get conversation history
+proxyRouter.use(
+  '/api/v1/ai',
+  createServiceProxy(config.services.aiAssistant, {
+    '^/api/v1/ai': '',   // strip prefix → /chat, /conversations/:id
+  }),
+);
