@@ -28,7 +28,7 @@ export const config = {
   // Qdrant Vector DB
   qdrantUrl: optional('QDRANT_URL', 'http://localhost:6333'),
   qdrantCollectionName: optional('QDRANT_COLLECTION', 'bankflow_knowledge'),
-  vectorDimensions: 768,
+  vectorDimensions: 3072,
 
   // Retrieval tuning
   ragTopKVector: parseInt(optional('RAG_TOP_K_VECTOR', '15'), 10),
