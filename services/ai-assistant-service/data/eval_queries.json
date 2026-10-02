@@ -1,0 +1,107 @@
+[
+  {
+    "id": "q1",
+    "query": "What is NEFT?",
+    "queryType": "GENERAL_BANKING",
+    "expectedDoc": "Banking Fundamentals",
+    "expectedSection": "NEFT Overview"
+  },
+  {
+    "id": "q2",
+    "query": "What does CREDIT_PENDING mean?",
+    "queryType": "BANKFLOW_DOCUMENTATION",
+    "expectedDoc": "BankFlow Product Manual",
+    "expectedSection": "Payment States"
+  },
+  {
+    "id": "q3",
+    "query": "How does double-entry accounting work?",
+    "queryType": "GENERAL_BANKING",
+    "expectedDoc": "Ledger System Architecture",
+    "expectedSection": "Double-Entry Principle"
+  },
+  {
+    "id": "q4",
+    "query": "What happens if a payment fails during settlement?",
+    "queryType": "BANKFLOW_DOCUMENTATION",
+    "expectedDoc": "Payments and Transfers",
+    "expectedSection": "Failure Handling"
+  },
+  {
+    "id": "q5",
+    "query": "Explain the Payment Saga pattern.",
+    "queryType": "BANKFLOW_DOCUMENTATION",
+    "expectedDoc": "Distributed Banking Architecture",
+    "expectedSection": "Saga Pattern"
+  },
+  {
+    "id": "q6",
+    "query": "What is the difference between IMPS and RTGS?",
+    "queryType": "GENERAL_BANKING",
+    "expectedDoc": "Banking Fundamentals",
+    "expectedSection": "Payment Systems Comparison"
+  },
+  {
+    "id": "q7",
+    "query": "Why would my money be stuck in DISPATCHED state?",
+    "queryType": "HYBRID",
+    "expectedDoc": "BankFlow Product Manual",
+    "expectedSection": "Payment States"
+  },
+  {
+    "id": "q8",
+    "query": "How does the beneficiary validation process work?",
+    "queryType": "BANKFLOW_DOCUMENTATION",
+    "expectedDoc": "Beneficiary Management",
+    "expectedSection": "Validation Rules"
+  },
+  {
+    "id": "q9",
+    "query": "What is a settlement window?",
+    "queryType": "GENERAL_BANKING",
+    "expectedDoc": "Banking Fundamentals",
+    "expectedSection": "Settlement Concepts"
+  },
+  {
+    "id": "q10",
+    "query": "What triggers the reconciliation service?",
+    "queryType": "BANKFLOW_DOCUMENTATION",
+    "expectedDoc": "Distributed Banking Architecture",
+    "expectedSection": "Reconciliation Flow"
+  },
+  {
+    "id": "q11",
+    "query": "Can you explain idempotency in payments?",
+    "queryType": "BANKFLOW_DOCUMENTATION",
+    "expectedDoc": "Payments and Transfers",
+    "expectedSection": "Idempotency"
+  },
+  {
+    "id": "q12",
+    "query": "What happens when a debit fails due to insufficient funds?",
+    "queryType": "BANKFLOW_DOCUMENTATION",
+    "expectedDoc": "Ledger System Architecture",
+    "expectedSection": "Debit Processing"
+  },
+  {
+    "id": "q13",
+    "query": "What is the maximum limit for UPI transfers?",
+    "queryType": "GENERAL_BANKING",
+    "expectedDoc": "Banking Fundamentals",
+    "expectedSection": "UPI"
+  },
+  {
+    "id": "q14",
+    "query": "How do inter-bank transfers settle?",
+    "queryType": "BANKFLOW_DOCUMENTATION",
+    "expectedDoc": "Distributed Banking Architecture",
+    "expectedSection": "Inter-Bank Settlement"
+  },
+  {
+    "id": "q15",
+    "query": "What does DEBIT_PENDING mean for a transaction?",
+    "queryType": "BANKFLOW_DOCUMENTATION",
+    "expectedDoc": "BankFlow Product Manual",
+    "expectedSection": "Payment States"
+  }
+]

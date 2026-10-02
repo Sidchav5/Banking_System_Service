@@ -6,7 +6,9 @@ import './StaffPortal.css';
 
 const API_BASE_URL = 'http://localhost:3000/api/v1';
 
-type StaffTab = 'kyc' | 'accounts' | 'reversals' | 'limits' | 'settlement' | 'reconciliation';
+import { RagMetricsDashboard } from './RagMetricsDashboard';
+
+type StaffTab = 'kyc' | 'accounts' | 'reversals' | 'limits' | 'settlement' | 'reconciliation' | 'rag';
 
 export const StaffPortal: React.FC = () => {
   const { accessToken, user } = useAuth();
@@ -389,7 +391,26 @@ export const StaffPortal: React.FC = () => {
               <span>Reconciliation</span>
             </button>
           )}
+          {isEmployee && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'rag'}
+              className={`staff-tab ${activeTab === 'rag' ? 'staff-tab--active' : ''}`}
+              onClick={() => setActiveTab('rag')}
+            >
+              <i className="bi bi-robot" />
+              <span>RAG Metrics</span>
+            </button>
+          )}
         </nav>
+
+        {/* Tab 7: RAG Metrics Dashboard */}
+        {activeTab === 'rag' && (
+          <section className="staff-section">
+            <RagMetricsDashboard />
+          </section>
+        )}
 
         {/* Tab 1: KYC */}
         {activeTab === 'kyc' && (
