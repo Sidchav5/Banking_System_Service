@@ -68,12 +68,10 @@ export const AiChat: React.FC = () => {
 
   const userId = user?.id ?? 'guest';
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Auto-resize textarea
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     e.target.style.height = 'auto';
@@ -182,13 +180,13 @@ export const AiChat: React.FC = () => {
 
   const queryTypeLabel = (qt?: string) => {
     const labels: Record<string, { text: string; cls: string }> = {
-      GENERAL_BANKING:       { text: '🏦 General Banking',       cls: 'badge-banking' },
-      BANKFLOW_DOCUMENTATION: { text: '📖 BankFlow Docs',        cls: 'badge-docs' },
-      LIVE_ACCOUNT_DATA:     { text: '💳 Live Account',          cls: 'badge-live' },
-      LIVE_TRANSACTION_DATA: { text: '📊 Live Transaction',      cls: 'badge-live' },
-      HYBRID:                { text: '🔀 Hybrid',                cls: 'badge-hybrid' },
-      FINANCIAL_ACTION:      { text: '⛔ Action Blocked',        cls: 'badge-blocked' },
-      UNSUPPORTED:           { text: '🚫 Out of Scope',          cls: 'badge-blocked' },
+      GENERAL_BANKING:        { text: 'General Banking',   cls: 'badge-banking' },
+      BANKFLOW_DOCUMENTATION: { text: 'BankFlow Docs',     cls: 'badge-docs' },
+      LIVE_ACCOUNT_DATA:      { text: 'Live Account',      cls: 'badge-live' },
+      LIVE_TRANSACTION_DATA:  { text: 'Live Transaction',  cls: 'badge-live' },
+      HYBRID:                 { text: 'Hybrid',            cls: 'badge-hybrid' },
+      FINANCIAL_ACTION:       { text: 'Action Blocked',    cls: 'badge-blocked' },
+      UNSUPPORTED:            { text: 'Out of Scope',      cls: 'badge-blocked' },
     };
     return qt ? labels[qt] : null;
   };
@@ -196,186 +194,213 @@ export const AiChat: React.FC = () => {
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="ai-chat-container">
-      {/* Header */}
-      <div className="ai-chat-header">
-        <div className="ai-chat-header-left">
-          <div className="ai-avatar-ring">
-            <span className="ai-avatar-icon">✦</span>
-          </div>
-          <div>
-            <h2 className="ai-chat-title">BankFlow AI Assistant</h2>
-            <p className="ai-chat-subtitle">Powered by Gemini · RAG Knowledge Base</p>
-          </div>
-        </div>
-        <div className="ai-chat-header-actions">
-          <button
-            className={`ai-btn-icon ${showDebug ? 'active' : ''}`}
-            onClick={() => setShowDebug(!showDebug)}
-            title="Toggle debug info"
-            id="ai-debug-toggle"
-          >⚙</button>
-          <button
-            className="ai-btn-icon"
-            onClick={clearConversation}
-            title="New conversation"
-            id="ai-new-chat"
-          >✕</button>
-        </div>
-      </div>
-
-      {/* Debug Panel */}
-      {showDebug && debugData && (
-        <div className="ai-debug-panel">
-          <div className="ai-debug-grid">
-            <div className="ai-debug-item">
-              <span className="ai-debug-label">Chunks Retrieved</span>
-              <span className="ai-debug-val">{debugData.chunksRetrieved}</span>
+    <div className="ai-chat-page">
+      <div className="ai-chat-container">
+        {/* Hero header */}
+        <header className="ai-chat-header">
+          <div className="ai-chat-header__left">
+            <div className="ai-avatar-ring">
+              <span className="ai-avatar-icon">✦</span>
             </div>
-            <div className="ai-debug-item">
-              <span className="ai-debug-label">After Rerank</span>
-              <span className="ai-debug-val">{debugData.chunksAfterRerank}</span>
-            </div>
-            <div className="ai-debug-item">
-              <span className="ai-debug-label">Top Score</span>
-              <span className="ai-debug-val">{debugData.topScore.toFixed(3)}</span>
-            </div>
-            <div className="ai-debug-item">
-              <span className="ai-debug-label">Latency</span>
-              <span className="ai-debug-val">{debugData.latencyMs}ms</span>
+            <div>
+              <span className="ai-chat-eyebrow">AI Operations</span>
+              <h1 className="ai-chat-title">BankFlow AI Assistant</h1>
+              <p className="ai-chat-subtitle">
+                Powered by Gemini · RAG Knowledge Base
+              </p>
             </div>
           </div>
-          {debugData.rewrittenQueries.length > 1 && (
-            <div className="ai-debug-rewrites">
-              <span className="ai-debug-label">Query rewrites:</span>
-              {debugData.rewrittenQueries.map((q, i) => (
-                <span key={i} className="ai-rewrite-chip">{q}</span>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Messages */}
-      <div className="ai-messages">
-        {messages.length === 0 && (
-          <div className="ai-welcome">
-            <div className="ai-welcome-icon">✦</div>
-            <h3 className="ai-welcome-title">How can I help you today?</h3>
-            <p className="ai-welcome-sub">
-              Ask me about banking concepts, payment statuses, BankFlow features, or your transactions.
-            </p>
-            <div className="ai-suggestions">
-              {SUGGESTED_QUESTIONS.map((q, i) => (
-                <button
-                  key={i}
-                  className="ai-suggestion-chip"
-                  onClick={() => sendMessage(q)}
-                  id={`ai-suggestion-${i}`}
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
+          <div className="ai-chat-header__actions">
+            <button
+              type="button"
+              className={`ai-btn-icon ${showDebug ? 'is-active' : ''}`}
+              onClick={() => setShowDebug(!showDebug)}
+              title="Toggle debug info"
+              aria-label="Toggle debug info"
+            >
+              <i className="bi bi-sliders"></i>
+            </button>
+            <button
+              type="button"
+              className="ai-btn-icon"
+              onClick={clearConversation}
+              title="New conversation"
+              aria-label="New conversation"
+            >
+              <i className="bi bi-arrow-clockwise"></i>
+            </button>
           </div>
-        )}
+        </header>
 
-        {messages.map((msg) => (
-          <div key={msg.id} className={`ai-message ai-message-${msg.role}`}>
-            {msg.role === 'assistant' && (
-              <div className="ai-msg-avatar">✦</div>
-            )}
-
-            <div className="ai-msg-body">
-              {/* Query type badge */}
-              {msg.role === 'assistant' && msg.queryType && !msg.isStreaming && (() => {
-                const label = queryTypeLabel(msg.queryType);
-                return label ? (
-                  <div className={`ai-query-badge ${label.cls}`}>{label.text}</div>
-                ) : null;
-              })()}
-
-              {/* Message content */}
-              {msg.isStreaming ? (
-                <div className="ai-thinking">
-                  <span className="ai-thinking-dot" />
-                  <span className="ai-thinking-dot" />
-                  <span className="ai-thinking-dot" />
-                  <span className="ai-thinking-label">Searching knowledge base…</span>
-                </div>
-              ) : (
-                <div className="ai-msg-text">{formatMessage(msg.content)}</div>
-              )}
-
-              {/* Citations */}
-              {msg.citations && msg.citations.length > 0 && (
-                <div className="ai-citations">
-                  <div className="ai-citations-label">📚 Sources</div>
-                  {msg.citations.map((c, i) => (
-                    <div key={i} className="ai-citation-card">
-                      <div className="ai-citation-header">
-                        <span className="ai-citation-num">[{i + 1}]</span>
-                        <span className="ai-citation-doc">{c.docName}</span>
-                        <span className="ai-citation-page">p.{c.page}</span>
-                      </div>
-                      {c.sectionHeading && (
-                        <div className="ai-citation-section">§ {c.sectionHeading}</div>
-                      )}
-                      {c.excerpt && (
-                        <div className="ai-citation-excerpt">"{c.excerpt}"</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Timestamp + latency */}
-              {!msg.isStreaming && (
-                <div className="ai-msg-meta">
-                  <span>{msg.timestamp.toLocaleTimeString()}</span>
-                  {msg.latencyMs && <span>{msg.latencyMs}ms</span>}
-                </div>
-              )}
+        {/* Debug panel */}
+        {showDebug && debugData && (
+          <div className="ai-debug-panel">
+            <div className="ai-debug-grid">
+              <div className="ai-debug-item">
+                <span className="ai-debug-label">Chunks Retrieved</span>
+                <span className="ai-debug-val">{debugData.chunksRetrieved}</span>
+              </div>
+              <div className="ai-debug-item">
+                <span className="ai-debug-label">After Rerank</span>
+                <span className="ai-debug-val">{debugData.chunksAfterRerank}</span>
+              </div>
+              <div className="ai-debug-item">
+                <span className="ai-debug-label">Top Score</span>
+                <span className="ai-debug-val">{debugData.topScore.toFixed(3)}</span>
+              </div>
+              <div className="ai-debug-item">
+                <span className="ai-debug-label">Latency</span>
+                <span className="ai-debug-val">{debugData.latencyMs}ms</span>
+              </div>
             </div>
-
-            {msg.role === 'user' && (
-              <div className="ai-user-avatar">
-                {user?.email?.[0]?.toUpperCase() ?? 'U'}
+            {debugData.rewrittenQueries.length > 1 && (
+              <div className="ai-debug-rewrites">
+                <span className="ai-debug-label">Query rewrites:</span>
+                {debugData.rewrittenQueries.map((q, i) => (
+                  <span key={i} className="ai-rewrite-chip">{q}</span>
+                ))}
               </div>
             )}
           </div>
-        ))}
+        )}
 
-        <div ref={messagesEndRef} />
+        {/* Messages */}
+        <div className="ai-messages">
+          {messages.length === 0 && (
+            <div className="ai-welcome">
+              <div className="ai-welcome-icon">✦</div>
+              <h3 className="ai-welcome-title">How can I help you today?</h3>
+              <p className="ai-welcome-sub">
+                Ask me about banking concepts, payment statuses, BankFlow features, or your transactions.
+              </p>
+              <div className="ai-suggestions">
+                {SUGGESTED_QUESTIONS.map((q, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className="ai-suggestion-chip"
+                    onClick={() => sendMessage(q)}
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {messages.map((msg) => (
+            <div key={msg.id} className={`ai-message ai-message-${msg.role}`}>
+              {msg.role === 'assistant' && (
+                <div className="ai-msg-avatar">
+                  <span>✦</span>
+                </div>
+              )}
+
+              <div className="ai-msg-body">
+                {msg.role === 'assistant' && msg.queryType && !msg.isStreaming && (() => {
+                  const label = queryTypeLabel(msg.queryType);
+                  return label ? (
+                    <div className={`ai-query-badge ${label.cls}`}>{label.text}</div>
+                  ) : null;
+                })()}
+
+                {msg.isStreaming ? (
+                  <div className="ai-thinking">
+                    <span className="ai-thinking-dot"></span>
+                    <span className="ai-thinking-dot"></span>
+                    <span className="ai-thinking-dot"></span>
+                    <span className="ai-thinking-label">Searching knowledge base…</span>
+                  </div>
+                ) : (
+                  <div className="ai-msg-text">{formatMessage(msg.content)}</div>
+                )}
+
+                {msg.citations && msg.citations.length > 0 && (
+                  <div className="ai-citations">
+                    <div className="ai-citations-label">
+                      <i className="bi bi-book-half"></i>
+                      Sources
+                    </div>
+                    {msg.citations.map((c, i) => (
+                      <div key={i} className="ai-citation-card">
+                        <div className="ai-citation-header">
+                          <span className="ai-citation-num">[{i + 1}]</span>
+                          <span className="ai-citation-doc">{c.docName}</span>
+                          <span className="ai-citation-page">p.{c.page}</span>
+                        </div>
+                        {c.sectionHeading && (
+                          <div className="ai-citation-section">§ {c.sectionHeading}</div>
+                        )}
+                        {c.excerpt && (
+                          <div className="ai-citation-excerpt">"{c.excerpt}"</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {!msg.isStreaming && (
+                  <div className="ai-msg-meta">
+                    <span>
+                      <i className="bi bi-clock"></i>
+                      {msg.timestamp.toLocaleTimeString()}
+                    </span>
+                    {msg.latencyMs && (
+                      <span>
+                        <i className="bi bi-lightning-charge-fill"></i>
+                        {msg.latencyMs}ms
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {msg.role === 'user' && (
+                <div className="ai-user-avatar">
+                  {user?.email?.[0]?.toUpperCase() ?? 'U'}
+                </div>
+              )}
+            </div>
+          ))}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        <form className="ai-input-form" onSubmit={handleSubmit}>
+          <div className="ai-input-wrapper">
+            <textarea
+              ref={inputRef}
+              className="ai-input"
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about banking, payment status, or BankFlow features…"
+              rows={1}
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              className="ai-send-btn"
+              disabled={isLoading || !input.trim()}
+              aria-label="Send message"
+            >
+              {isLoading ? (
+                <span className="ai-spinner"></span>
+              ) : (
+                <i className="bi bi-arrow-up"></i>
+              )}
+            </button>
+          </div>
+          <div className="ai-input-hint">
+            <span><kbd>Enter</kbd> to send</span>
+            <span className="ai-input-hint__dot">•</span>
+            <span><kbd>Shift</kbd> + <kbd>Enter</kbd> for new line</span>
+            <span className="ai-input-hint__dot">•</span>
+            <span>AI cannot execute financial transactions</span>
+          </div>
+        </form>
       </div>
-
-      {/* Input */}
-      <form className="ai-input-form" onSubmit={handleSubmit}>
-        <div className="ai-input-wrapper">
-          <textarea
-            ref={inputRef}
-            className="ai-input"
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask about banking, payment status, or BankFlow features… (Enter to send)"
-            rows={1}
-            disabled={isLoading}
-            id="ai-chat-input"
-          />
-          <button
-            type="submit"
-            className={`ai-send-btn ${isLoading ? 'loading' : ''}`}
-            disabled={isLoading || !input.trim()}
-            id="ai-send-btn"
-          >
-            {isLoading ? <span className="ai-spinner" /> : '↑'}
-          </button>
-        </div>
-        <div className="ai-input-hint">
-          Shift+Enter for new line · Enter to send · AI cannot execute financial transactions
-        </div>
-      </form>
     </div>
   );
 };
@@ -383,7 +408,6 @@ export const AiChat: React.FC = () => {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatMessage(text: string): React.ReactNode {
-  // Handle **bold**, [SOURCE N] highlights, code blocks, bullet lists
   const lines = text.split('\n');
   return (
     <>
@@ -402,7 +426,6 @@ function formatMessage(text: string): React.ReactNode {
 }
 
 function formatInline(text: string): React.ReactNode {
-  // Highlight [SOURCE N] references
   const parts = text.split(/(\[SOURCE \d+\])/g);
   return (
     <>
@@ -410,7 +433,6 @@ function formatInline(text: string): React.ReactNode {
         /^\[SOURCE \d+\]$/.test(part) ? (
           <span key={i} className="ai-source-ref">{part}</span>
         ) : (
-          // Bold **text**
           part.split(/(\*\*[^*]+\*\*)/).map((p, j) =>
             /^\*\*[^*]+\*\*$/.test(p) ? (
               <strong key={j}>{p.slice(2, -2)}</strong>

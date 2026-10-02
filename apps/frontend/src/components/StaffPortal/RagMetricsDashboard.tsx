@@ -2,14 +2,13 @@ import React from 'react';
 import './RagMetricsDashboard.css';
 
 export const RagMetricsDashboard: React.FC = () => {
-  // Hardcoded or mock metrics to demonstrate the dashboard
   const metrics = {
     totalQueries: 1520,
     avgLatencyMs: 845,
-    abstentionRate: 8.2, // %
+    abstentionRate: 8.2,
     mrr: 0.82,
-    recallAt1: 85.4, // %
-    recallAt5: 96.2, // %
+    recallAt1: 85.4,
+    recallAt5: 96.2,
   };
 
   const recentQueries = [
@@ -21,116 +20,211 @@ export const RagMetricsDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="rag-dashboard-container">
-      <div className="rag-dashboard-header">
-        <h3>
-          <i className="bi bi-robot"></i> RAG Performance Dashboard
-        </h3>
-        <p>Monitor retrieval metrics, latency, and AI assistant behavior.</p>
-      </div>
+    <div className="rag-page">
+      <div className="rag-container">
+        {/* Hero header */}
+        <header className="rag-hero">
+          <div className="rag-hero__left">
+            <div className="rag-hero__icon">
+              <i className="bi bi-robot"></i>
+            </div>
+            <div>
+              <span className="rag-hero__eyebrow">AI Operations</span>
+              <h1 className="rag-hero__title">RAG Performance Dashboard</h1>
+              <p className="rag-hero__subtitle">
+                Monitor retrieval quality, latency, and assistant behavior across the banking copilot
+              </p>
+            </div>
+          </div>
 
-      {/* KPI Cards */}
-      <div className="rag-kpi-grid">
-        <div className="rag-kpi-card">
-          <div className="kpi-icon"><i className="bi bi-search"></i></div>
-          <div className="kpi-content">
-            <span className="kpi-label">Total Queries</span>
-            <span className="kpi-value">{metrics.totalQueries.toLocaleString()}</span>
+          <div className="rag-hero__status">
+            <span className="rag-live-dot"></span>
+            <span>Live telemetry</span>
           </div>
-        </div>
-        <div className="rag-kpi-card">
-          <div className="kpi-icon"><i className="bi bi-stopwatch"></i></div>
-          <div className="kpi-content">
-            <span className="kpi-label">Avg Latency</span>
-            <span className="kpi-value">{metrics.avgLatencyMs} ms</span>
-          </div>
-        </div>
-        <div className="rag-kpi-card">
-          <div className="kpi-icon"><i className="bi bi-shield-slash"></i></div>
-          <div className="kpi-content">
-            <span className="kpi-label">Abstention Rate</span>
-            <span className="kpi-value">{metrics.abstentionRate}%</span>
-          </div>
-        </div>
-        <div className="rag-kpi-card">
-          <div className="kpi-icon"><i className="bi bi-bullseye"></i></div>
-          <div className="kpi-content">
-            <span className="kpi-label">Mean Reciprocal Rank</span>
-            <span className="kpi-value">{metrics.mrr.toFixed(2)}</span>
-          </div>
-        </div>
-      </div>
+        </header>
 
-      <div className="rag-charts-row">
-        {/* Recall Metrics */}
-        <div className="rag-chart-panel">
-          <h4>Retrieval Accuracy (Recall)</h4>
-          <div className="recall-bars">
-            <div className="recall-bar-item">
-              <div className="recall-label">Recall@1 ({metrics.recallAt1}%)</div>
-              <div className="recall-track">
-                <div className="recall-fill" style={{ width: `${metrics.recallAt1}%` }}></div>
+        {/* KPI grid */}
+        <section className="rag-kpi-grid">
+          <div className="rag-kpi-card">
+            <div className="rag-kpi-card__icon rag-kpi-card__icon--indigo">
+              <i className="bi bi-search"></i>
+            </div>
+            <div className="rag-kpi-card__body">
+              <span className="rag-kpi-card__label">Total Queries</span>
+              <span className="rag-kpi-card__value">
+                {metrics.totalQueries.toLocaleString()}
+              </span>
+              <span className="rag-kpi-card__hint">last 24 hours</span>
+            </div>
+          </div>
+
+          <div className="rag-kpi-card">
+            <div className="rag-kpi-card__icon rag-kpi-card__icon--amber">
+              <i className="bi bi-stopwatch"></i>
+            </div>
+            <div className="rag-kpi-card__body">
+              <span className="rag-kpi-card__label">Avg Latency</span>
+              <span className="rag-kpi-card__value">
+                {metrics.avgLatencyMs}
+                <span className="rag-kpi-card__unit">ms</span>
+              </span>
+              <span className="rag-kpi-card__hint">p50 across queries</span>
+            </div>
+          </div>
+
+          <div className="rag-kpi-card">
+            <div className="rag-kpi-card__icon rag-kpi-card__icon--danger">
+              <i className="bi bi-shield-slash"></i>
+            </div>
+            <div className="rag-kpi-card__body">
+              <span className="rag-kpi-card__label">Abstention Rate</span>
+              <span className="rag-kpi-card__value">
+                {metrics.abstentionRate}
+                <span className="rag-kpi-card__unit">%</span>
+              </span>
+              <span className="rag-kpi-card__hint">guardrails triggered</span>
+            </div>
+          </div>
+
+          <div className="rag-kpi-card">
+            <div className="rag-kpi-card__icon rag-kpi-card__icon--success">
+              <i className="bi bi-bullseye"></i>
+            </div>
+            <div className="rag-kpi-card__body">
+              <span className="rag-kpi-card__label">Mean Reciprocal Rank</span>
+              <span className="rag-kpi-card__value">{metrics.mrr.toFixed(2)}</span>
+              <span className="rag-kpi-card__hint">higher is better</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Charts row */}
+        <section className="rag-charts-row">
+          {/* Recall panel */}
+          <div className="rag-panel">
+            <div className="rag-panel__head">
+              <i className="bi bi-bar-chart-line-fill"></i>
+              <h3>Retrieval Accuracy</h3>
+            </div>
+
+            <div className="recall-bars">
+              <div className="recall-bar-item">
+                <div className="recall-bar-item__head">
+                  <span className="recall-label">Recall@1</span>
+                  <span className="recall-value">{metrics.recallAt1}%</span>
+                </div>
+                <div className="recall-track">
+                  <div
+                    className="recall-fill recall-fill--primary"
+                    style={{ width: `${metrics.recallAt1}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="recall-bar-item">
+                <div className="recall-bar-item__head">
+                  <span className="recall-label">Recall@5</span>
+                  <span className="recall-value">{metrics.recallAt5}%</span>
+                </div>
+                <div className="recall-track">
+                  <div
+                    className="recall-fill recall-fill--success"
+                    style={{ width: `${metrics.recallAt5}%` }}
+                  ></div>
+                </div>
               </div>
             </div>
-            <div className="recall-bar-item">
-              <div className="recall-label">Recall@5 ({metrics.recallAt5}%)</div>
-              <div className="recall-track">
-                <div className="recall-fill" style={{ width: `${metrics.recallAt5}%` }}></div>
-              </div>
-            </div>
-          </div>
-          <p className="rag-chart-hint">Measured automatically on ingest via test suite.</p>
-        </div>
-        
-        {/* Mock Chart Area */}
-        <div className="rag-chart-panel">
-          <h4>Queries by Intent</h4>
-          <div className="intent-chart-placeholder">
-            <div className="pie-chart-mock"></div>
-            <div className="pie-legend">
-              <div><span className="dot dot-banking"></span> General Banking</div>
-              <div><span className="dot dot-live"></span> Live Data</div>
-              <div><span className="dot dot-blocked"></span> Guardrails</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Recent Queries Table */}
-      <div className="rag-recent-queries">
-        <h4>Recent Queries Logs</h4>
-        <table className="staff-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Query</th>
-              <th>Intent Class</th>
-              <th>Latency</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentQueries.map((q) => (
-              <tr key={q.id}>
-                <td><code>{q.id}</code></td>
-                <td>{q.query}</td>
-                <td>
-                  <span className={`query-type-badge ${q.type.toLowerCase()}`}>
-                    {q.type.replace('_', ' ')}
-                  </span>
-                </td>
-                <td>{q.latency} ms</td>
-                <td>
-                  {q.abstained ? (
-                    <span className="status-badge abstained">Abstained</span>
-                  ) : (
-                    <span className="status-badge answered">Answered</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            <p className="rag-panel__hint">
+              <i className="bi bi-info-circle"></i>
+              Measured automatically on ingest via test suite.
+            </p>
+          </div>
+
+          {/* Intent distribution */}
+          <div className="rag-panel">
+            <div className="rag-panel__head">
+              <i className="bi bi-pie-chart-fill"></i>
+              <h3>Queries by Intent</h3>
+            </div>
+
+            <div className="intent-chart">
+              <div className="intent-chart__pie"></div>
+              <ul className="intent-chart__legend">
+                <li>
+                  <span className="intent-chart__dot intent-chart__dot--banking"></span>
+                  <span className="intent-chart__name">General Banking</span>
+                  <span className="intent-chart__pct">45%</span>
+                </li>
+                <li>
+                  <span className="intent-chart__dot intent-chart__dot--live"></span>
+                  <span className="intent-chart__name">Live Data</span>
+                  <span className="intent-chart__pct">25%</span>
+                </li>
+                <li>
+                  <span className="intent-chart__dot intent-chart__dot--blocked"></span>
+                  <span className="intent-chart__name">Guardrails</span>
+                  <span className="intent-chart__pct">30%</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Recent queries */}
+        <section className="rag-panel rag-panel--table">
+          <div className="rag-panel__head">
+            <i className="bi bi-clock-history"></i>
+            <h3>Recent Query Logs</h3>
+            <span className="rag-panel__count">{recentQueries.length} entries</span>
+          </div>
+
+          <div className="table-responsive">
+            <table className="rag-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Query</th>
+                  <th>Intent Class</th>
+                  <th className="align-end">Latency</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentQueries.map((q) => (
+                  <tr key={q.id}>
+                    <td>
+                      <code className="id-chip">{q.id}</code>
+                    </td>
+                    <td className="cell-query">{q.query}</td>
+                    <td>
+                      <span className={`query-type-badge query-type-badge--${q.type.toLowerCase().replace(/_/g, '-')}`}>
+                        {q.type.replace(/_/g, ' ')}
+                      </span>
+                    </td>
+                    <td className="align-end cell-latency">
+                      {q.latency}
+                      <span className="cell-latency__unit">ms</span>
+                    </td>
+                    <td>
+                      {q.abstained ? (
+                        <span className="rag-status rag-status--abstained">
+                          <i className="bi bi-shield-exclamation"></i>
+                          Abstained
+                        </span>
+                      ) : (
+                        <span className="rag-status rag-status--answered">
+                          <i className="bi bi-check-circle-fill"></i>
+                          Answered
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </div>
   );
