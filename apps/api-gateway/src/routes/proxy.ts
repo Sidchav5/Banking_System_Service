@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { config } from '../config';
 import { paymentLimiter } from '../middleware/rateLimiter';
 
@@ -19,6 +19,7 @@ function createServiceProxy(target: string, pathRewrite?: Record<string, string>
     changeOrigin: true,
     pathRewrite,
     on: {
+      proxyReq: fixRequestBody,
       error: (err, _req, res: any) => {
         if (!res.headersSent) {
           res.status(502).json({
