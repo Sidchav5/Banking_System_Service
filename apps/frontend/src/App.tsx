@@ -157,7 +157,7 @@ const MainContent: React.FC = () => {
         )}
 
         {activeTab === 'ai' && (
-          <div style={{ padding: '12px 16px', height: 'calc(100vh - 80px)' }}>
+          <div style={{ padding: '12px 16px' }}>
             <AiChat />
           </div>
         )}

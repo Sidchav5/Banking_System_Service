@@ -47,7 +47,7 @@
    Page
    ========================================================= */
 .ai-chat-page {
-  min-height: 100vh;
+  min-height: 250px;
   background: var(--bf-bg);
   font-family: var(--bf-font);
   color: var(--bf-text);
@@ -61,7 +61,8 @@
   flex-direction: column;
   width: 100%;
   max-width: 900px;
-  height: calc(100vh - 48px);
+  height: 75vh;
+  min-height: 550px;
   background: var(--bf-surface);
   border: 1px solid var(--bf-border);
   border-radius: var(--bf-radius-xl) var(--bf-radius-xl) 0 0;
